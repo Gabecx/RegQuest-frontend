@@ -2,37 +2,52 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
-const baseURL = process.env.EXPO_PUBLIC_API_URL || 'https://regquest-backend.onrender.com/api';
+const baseURL = 'https://regquest-backend-2.onrender.com/api/v1';
 
 const api = axios.create({
     baseURL,
+    timeout: 15000,
 });
+
 
 api.interceptors.request.use(
     async (config) => {
-        const jwt_token = await AsyncStorage.getItem("jwt_token");
-        if (jwt_token) {
-            config.headers['Authorization'] = `Bearer ${jwt_token}`;
+        try {
+            const token = await AsyncStorage.getItem("jwt_token");
+
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+
+            return config;
+        } catch (error) {
+            return config;
         }
-        return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
+
 
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response && error.response.status === 401) {
-            
-            await AsyncStorage.removeItem('jwt_token');
-            await AsyncStorage.removeItem('user');
-            
-            if (router.replace) {
+        const status = error.response?.status;
+
+        if (status === 401) {
+            try {
+                await AsyncStorage.removeItem('jwt_token');
+                await AsyncStorage.removeItem('refresh_token');
+                await AsyncStorage.removeItem('user');
+            } catch (e) {
+                console.log("Storage clear error:", e);
+            }
+
+            // safer navigation check
+            if (router?.replace) {
                 router.replace('/auth/login');
             }
         }
+
         return Promise.reject(error);
     }
 );

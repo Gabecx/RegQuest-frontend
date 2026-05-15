@@ -40,9 +40,9 @@ export default StyleSheet.create({
     alignItems: "flex-start",
   },
   logo: {
-    width: 80,
-    height: 80,
-    marginBottom: 32,
+    width: 200,
+    height: 200,
+    marginBottom: 0,
     alignSelf: "center",
   },
   welcomeTitle: {
@@ -53,6 +53,7 @@ export default StyleSheet.create({
     textTransform: "uppercase",
     lineHeight: 45, 
     letterSpacing: 0.5,
+    marginTop: -30,
   },
   welcomeSubtitle: {
     color: "#dbeafe",

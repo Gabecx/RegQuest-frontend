@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Restore session on app load
     useEffect(() => {
         const loadStoredUser = async () => {
             try {
@@ -23,7 +24,7 @@ export const AuthProvider = ({ children }) => {
                     setUser(JSON.parse(storedUser));
                 }
             } catch (error) {
-                console.error("Failed to restore native session", error);
+                console.error("Failed to restore session:", error);
                 await logout();
             } finally {
                 setIsLoading(false);
@@ -33,20 +34,49 @@ export const AuthProvider = ({ children }) => {
         loadStoredUser();
     }, []);
 
+    // LOGIN
     const login = async (email, password) => {
-        const response = await api.post('/auth/login', { email, password });
-        
-        const { jwt_token, user: userData } = response.data;
-        await AsyncStorage.setItem('jwt_token', jwt_token);
-        await AsyncStorage.setItem('user', JSON.stringify(userData));
-        
-        setUser(userData);
-        router.replace('/(tabs)/home');
+        try {
+            const response = await api.post('/accounts/login/', {
+                email,
+                password
+            });
+
+            const { access, refresh, user: userData } = response.data;
+
+            if (!access) {
+                throw new Error("No access token returned from backend");
+            }
+
+            await AsyncStorage.setItem('jwt_token', access);
+
+            if (refresh) {
+                await AsyncStorage.setItem('refresh_token', refresh);
+            }
+
+            if (userData) {
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
+                setUser(userData);
+            }
+
+            router.replace('/(tabs)/home');
+
+        } catch (error) {
+            console.log("Login error:", error.response?.data || error.message);
+            throw error;
+        }
     };
 
+    // LOGOUT
     const logout = async () => {
-        await AsyncStorage.removeItem('jwt_token');
-        await AsyncStorage.removeItem('user');
+        try {
+            await AsyncStorage.removeItem('jwt_token');
+            await AsyncStorage.removeItem('refresh_token');
+            await AsyncStorage.removeItem('user');
+        } catch (error) {
+            console.log("Logout error:", error.message);
+        }
+
         setUser(null);
         router.replace('/auth/login');
     };
