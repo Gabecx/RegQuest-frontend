@@ -226,7 +226,7 @@ export default function Register() {
                             setOpen={setOpenYearLevel}
                             setValue={setYearLevel}
                             setItems={setYearLevelItems}
-                            listMode="FLATLIST"
+                            listMode="SCROLLVIEW"
                             dropDownDirection="BOTTOM"
                             placeholder="Select Year Level"
                             placeholderStyle={{ color: '#9ca3af', marginLeft: 5 }}
