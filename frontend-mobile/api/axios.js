@@ -2,7 +2,7 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
-const baseURL = 'https://regquest-backend-2.onrender.com/api/v1';
+const baseURL = process.env.EXPO_PUBLIC_API_URL || 'https://regquest-backend-2.onrender.com/api/v1';
 
 const api = axios.create({
     baseURL,
