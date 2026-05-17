@@ -18,6 +18,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { COLORS } from "../../constants/theme";
+import DropDownPicker from 'react-native-dropdown-picker';
 
 export default function Register() {
   const router = useRouter();
@@ -27,6 +28,15 @@ export default function Register() {
   const [studentId, setStudentId] = useState("");
   const [program, setProgram] = useState("");
   const [yearLevel, setYearLevel] = useState("");
+  const [openYearLevel, setOpenYearLevel] = useState(false);
+  const [yearLevelItems, setYearLevelItems] = useState([
+    {label: '1st Year', value: '1'},
+    {label: '2nd Year', value: '2'},
+    {label: '3rd Year', value: '3'},
+    {label: '4th Year', value: '4'},
+    {label: '5th Year', value: '5'}
+  ]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -58,19 +68,35 @@ export default function Register() {
     setIsRegistering(true);
 
     try {
-      await api.post('/auth/register', {
-        fname: firstName || 'Unknown',
-        lname: lastName || 'Unknown',
+      await api.post('/accounts/register/', {
+        first_name: firstName || 'Unknown',
+        last_name: lastName || 'Unknown',
         email,
-        password
+        password,
+        role: 'student',
+        univ_id: studentId,
+        course: program,
+        year_level: parseInt(yearLevel) || 1
       });
 
       setSuccess(true);
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
+      if (err.response && err.response.data) {
+        if (err.response.data.message) {
+          setError(err.response.data.message);
+        } else {
+          const errorData = err.response.data;
+          const errorMessages = Object.keys(errorData)
+            .map(key => {
+              const val = errorData[key];
+              const msg = Array.isArray(val) ? val[0] : val;
+              return `${key.replace('_', ' ')}: ${msg}`;
+            })
+            .join('\n');
+          setError(errorMessages || "An error occurred during registration.");
+        }
       } else {
-        setError("An error occurred during registration.");
+        setError(err.message || "An error occurred during registration.");
       }
     } finally {
       setIsRegistering(false);
@@ -190,7 +216,45 @@ export default function Register() {
                       <Input label="Last Name" icon={User} placeholder="Provide your last name" value={lastName} onChangeText={setLastName} />
                       <Input label="Student ID" icon={IdCard} placeholder="Provide your student ID" value={studentId} onChangeText={setStudentId} keyboardType="numeric" />
                       <Input label="Program / Course" icon={GraduationCap} placeholder="Provide course/program" value={program} onChangeText={setProgram} />
-                      <Input label="Year Level" icon={Calendar} placeholder="Provide your year level" value={yearLevel} onChangeText={setYearLevel} keyboardType="numeric" />
+                      <View style={{ marginBottom: 16, zIndex: 1000 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '700', color: COLORS.darkgray, marginBottom: 8 }}>Year Level</Text>
+                        <View style={{ marginBottom: 16, zIndex: 5000, elevation: 20 }}>
+                          <DropDownPicker
+                            open={openYearLevel}
+                            value={yearLevel}
+                            items={yearLevelItems}
+                            setOpen={setOpenYearLevel}
+                            setValue={setYearLevel}
+                            setItems={setYearLevelItems}
+                            listMode="SCROLLVIEW"
+                            dropDownDirection="BOTTOM"
+                            placeholder="Select Year Level"
+                            placeholderStyle={{ color: '#9ca3af', marginLeft: 5 }}
+                            icon={() => <Calendar size={20} color="#9ca3af" />}
+                            style={{
+                              borderWidth: 1,
+                              borderColor: '#e5e7eb',
+                              borderRadius: 8,
+                              backgroundColor: '#f9fafb',
+                              height: 50,
+                              zIndex: 5000,
+                              elevation: 50,
+                            }}
+                            dropDownContainerStyle={{
+                              borderColor: '#e5e7eb',
+                              backgroundColor: '#f9fafb',
+                              maxHeight: 110,
+                              zIndex: 5000,
+                              elevation: 20,
+                            }}
+                            textStyle={{
+                              fontSize: 14,
+                              color: COLORS.darkgray,
+                              marginLeft: 5
+                            }}
+                          />
+                        </View>
+                      </View>
 
                       <View style={styles.registerButtons}>
                         <Button title="Next Step" style={styles.btnNext} onPress={handleNextStep} />
