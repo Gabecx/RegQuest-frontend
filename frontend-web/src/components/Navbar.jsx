@@ -65,7 +65,7 @@ const Navbar = ({ currentUser }) => {
                 </button>
                 <div className="user-profile" ref={dropdownRef}>
                     <span style={{ marginRight: '10px', fontWeight: '600', color: '#4B4A4A' }}>
-                        Hello, {user.name}
+                        Hello, {user.first_name || user.name?.split(' ')[0] || "User"}
                     </span>
                     <button 
                         className="profile-btn"

@@ -11,12 +11,12 @@ const ProfilePage = ({ currentUser }) => {
     const navigate = useNavigate();
     
     const user = currentUser || {
-        firstName: "Juan",
-        lastName: "De Letchi",
-        studentId: "2026202686",
+        first_name: "Juan",
+        last_name: "De Letchi",
+        univ_id: "2026202686",
         email: "juan@email.com",
-        program: "BS in Information Technology",
-        yearLevel: "1st Year",
+        course: "BS in Information Technology",
+        year_level: "1",
         avatar: null
     };
 
@@ -92,15 +92,15 @@ const ProfilePage = ({ currentUser }) => {
                                 <div className="form-grid profile-form-grid">
                                     <div className="form-group">
                                         <label>First Name</label>
-                                        <input type="text" defaultValue={user.firstName} />
+                                        <input type="text" defaultValue={user.first_name || user.firstName} />
                                     </div>
                                     <div className="form-group">
                                         <label>Last Name</label>
-                                        <input type="text" defaultValue={user.lastName} />
+                                        <input type="text" defaultValue={user.last_name || user.lastName} />
                                     </div>
                                     <div className="form-group">
                                         <label>Student ID</label>
-                                        <input type="text" defaultValue={user.studentId} readOnly className="readonly-input" />
+                                        <input type="text" defaultValue={user.univ_id || user.studentId || user.student_id || 'N/A'} readOnly className="readonly-input" />
                                     </div>
                                     <div className="form-group">
                                         <label>Email Address</label>
@@ -108,11 +108,15 @@ const ProfilePage = ({ currentUser }) => {
                                     </div>
                                     <div className="form-group">
                                         <label>Program / Course</label>
-                                        <input type="text" defaultValue={user.program} readOnly className="readonly-input" />
+                                        <input type="text" defaultValue={user.course || user.program || 'N/A'} readOnly className="readonly-input" />
                                     </div>
                                     <div className="form-group">
                                         <label>Year Level</label>
-                                        <input type="text" defaultValue={user.yearLevel} readOnly className="readonly-input" />
+                                        <input type="text" defaultValue={
+                                            user.year_level 
+                                                ? `${user.year_level}${['st', 'nd', 'rd'][(user.year_level % 10) - 1] || 'th'} Year` 
+                                                : user.yearLevel || 'N/A'
+                                        } readOnly className="readonly-input" />
                                     </div>
                                 </div>
                                 

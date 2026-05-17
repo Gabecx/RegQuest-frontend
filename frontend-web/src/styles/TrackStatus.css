@@ -153,6 +153,11 @@
     z-index: 1;
 }
 
+.timeline-step.completed:not(:last-child)::after {
+    background-color: var(--color-primary);
+    z-index: 2;
+}
+
 .timeline-icon-container {
     width: 28px;
     height: 28px;
@@ -171,6 +176,17 @@
 .timeline-step.completed .timeline-icon-container {
     background-color: var(--color-primary);
     color: white;
+}
+
+.timeline-step.active .timeline-icon-container {
+    background-color: white;
+    border: 3px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.timeline-step.pending .timeline-icon-container {
+    background-color: #e9ecef;
+    color: #adb5bd;
 }
 
 .timeline-content {

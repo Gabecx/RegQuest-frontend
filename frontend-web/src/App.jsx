@@ -16,10 +16,15 @@ const AppContent = () => {
   
   // mockup fallback
   const currentUser = user || {
-    name: "User",
+    name: "System User",
+    first_name: "User",
+    last_name: "",
+    email: "user@system.com",
     role: "Student",
-    studentId: "0000-0000",
-    notifications: 5
+    studentId: "N/A",
+    year_level: "N/A",
+    program: "N/A",
+    notifications: 0
   };
 
   return (

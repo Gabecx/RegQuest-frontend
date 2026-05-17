@@ -11,6 +11,9 @@ const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [program, setProgram] = useState('');
+  const [yearLevel, setYearLevel] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -39,7 +42,10 @@ const RegisterPage = () => {
         password,
         first_name: firstName,
         last_name: lastName,
-        role: "student"
+        role: "student",
+        univ_id: studentId,
+        course: program,
+        year_level: yearLevel ? parseInt(yearLevel) : 1
       });
 
       console.log('Registration successful', response.data);
@@ -130,6 +136,8 @@ const RegisterPage = () => {
                       type="text" 
                       className="form-input" 
                       placeholder="Provide your student ID" 
+                      value={studentId}
+                      onChange={(e) => setStudentId(e.target.value)}
                     />
                   </div>
                 </div>
@@ -140,11 +148,21 @@ const RegisterPage = () => {
                     <div className="input-icon">
                       <GraduationCap className="icon-svg" />
                     </div>
-                    <input 
-                      type="text" 
+                    <select 
                       className="form-input" 
-                      placeholder="Provide course/program" 
-                    />
+                      value={program}
+                      onChange={(e) => setProgram(e.target.value)}
+                      style={{ appearance: 'none', backgroundColor: 'transparent' }}
+                    >
+                      <option value="" disabled>Select your program/course</option>
+                      <option value="BS in Information Technology">BS in Information Technology</option>
+                      <option value="BS in Computer Science">BS in Computer Science</option>
+                      <option value="BS in Information Systems">BS in Information Systems</option>
+                      <option value="BS in Engineering">BS in Engineering</option>
+                      <option value="BS in Business Administration">BS in Business Administration</option>
+                      <option value="BA in Communication">BA in Communication</option>
+                      <option value="BS in Psychology">BS in Psychology</option>
+                    </select>
                   </div>
                 </div>
 
@@ -154,11 +172,19 @@ const RegisterPage = () => {
                     <div className="input-icon">
                       <Calendar className="icon-svg" />
                     </div>
-                    <input 
-                      type="text" 
+                    <select 
                       className="form-input" 
-                      placeholder="Provide your year level" 
-                    />
+                      value={yearLevel}
+                      onChange={(e) => setYearLevel(e.target.value)}
+                      style={{ appearance: 'none', backgroundColor: 'transparent' }}
+                    >
+                      <option value="" disabled>Select your year level</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                      <option value="5">5th Year</option>
+                    </select>
                   </div>
                 </div>
 
