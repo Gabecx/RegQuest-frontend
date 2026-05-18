@@ -20,7 +20,9 @@ const LoginPage = () => {
     try {
       await login(email, password);
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
+      if (err.response && err.response.data && err.response.data.detail) {
+        setError(err.response.data.detail);
+      } else if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
         setError('Invalid email or password.');

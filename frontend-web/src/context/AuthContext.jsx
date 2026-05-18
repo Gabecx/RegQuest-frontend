@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
 
-    // Session Persistence
     useEffect(() => {
         const loadStoredUser = () => {
             try {
@@ -23,7 +22,6 @@ export const AuthProvider = ({ children }) => {
                 if (token && storedUser && storedUser !== "undefined") {
                     const parsed = JSON.parse(storedUser);
                     if (parsed.email && parsed.first_name === undefined && parsed.role) {
-                        // Stale payload format, force logout to get new data
                         logout();
                     } else {
                         setUser(parsed);
@@ -46,17 +44,25 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (email, password) => {
-        const response = await api.post('/accounts/login/', {
+        const tokenResponse = await api.post('/accounts/login/', {
             email,
             password
         });
 
-        const { access, refresh, user: userData } = response.data;
+        const { access, refresh} = tokenResponse.data;
 
         localStorage.setItem('jwt_token', access);
         localStorage.setItem('refresh_token', refresh);
-        localStorage.setItem('user', JSON.stringify(userData));
 
+        const userResponse = await api.get('/accounts/users/me/', {
+            headers: {
+                Authorization: `Bearer ${access}`
+            }
+        });
+
+        const userData = userResponse.data;
+
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
 
         navigate('/home');

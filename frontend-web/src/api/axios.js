@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api/v1',
+    baseURL: 'http://localhost:8000/api/v1/',
 });
 
 api.interceptors.request.use(
@@ -21,10 +21,12 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Global 401 Unauthorized handling
-            localStorage.removeItem('jwt_token');
-            localStorage.removeItem('user');
-            window.location.href = '/'; 
+           if (error.config.url !== '/accounts/login/') {
+                localStorage.removeItem('jwt_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user');
+                window.location.href = '/'; 
+           }
         }
         return Promise.reject(error);
     }
