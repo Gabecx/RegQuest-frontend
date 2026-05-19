@@ -54,11 +54,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('jwt_token', access);
         localStorage.setItem('refresh_token', refresh);
 
-        const userResponse = await api.get('/accounts/users/me/', {
-            headers: {
-                Authorization: `Bearer ${access}`
-            }
-        });
+        const userResponse = await api.get('/accounts/users/me/');
 
         const userData = userResponse.data;
 

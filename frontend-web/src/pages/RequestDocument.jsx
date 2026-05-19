@@ -8,8 +8,6 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import '../styles/RequestDocument.css';
 
-const API_URL = "http://localhost:8000/api/v1/documents/";
-
 const RequestDocument = ({ currentUser }) => {
     const [documents, setDocuments] = useState([]);
     const [selectedDocs, setSelectedDocs] = useState([]);
@@ -27,18 +25,8 @@ const RequestDocument = ({ currentUser }) => {
     useEffect(() => {
         const fetchDocuments = async () => {
             try {
-                const response = await fetch(API_URL, {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("jwt_token") || ""}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to load documents");
-                }
-
-                const data = await response.json();
+                const response = await api.get('/documents/');
+                const data = response.data;;
 
                 const formatted = data.map(item => ({
                     id: item.id,
