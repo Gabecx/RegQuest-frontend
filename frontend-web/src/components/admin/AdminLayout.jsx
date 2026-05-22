@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { LogOut } from 'lucide-react';
 import logo from '../../assets/regquest-logo.png';
 
-const AdminLayout = ({ children }) => {
+const AdminLayout = ({ children, banner }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
@@ -21,9 +21,7 @@ const AdminLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      {/* Top Header */}
       <header className="bg-white border-b border-gray-100 flex items-center justify-between px-8 py-3">
-        {/* Left: Brand/Logo */}
         <div className="flex items-center space-x-3">
           <Link to="/admin/dashboard" className="flex items-center space-x-2">
             <img src={logo} alt="RegQuest Logo" className="h-9 w-auto" />
@@ -34,7 +32,6 @@ const AdminLayout = ({ children }) => {
           </Link>
         </div>
 
-        {/* Right: Profile Info & Log out */}
         <div className="flex items-center space-x-6">
           <div className="text-right leading-tight">
             <p className="text-sm font-extrabold text-gray-800">
@@ -55,7 +52,6 @@ const AdminLayout = ({ children }) => {
         </div>
       </header>
 
-      {/* Sub-Header Navigation Bar (Tabs) */}
       <div className="bg-white border-b border-gray-200 px-8">
         <nav className="flex space-x-8 max-w-7xl mx-auto">
           {menuItems.map((item) => {
@@ -77,7 +73,8 @@ const AdminLayout = ({ children }) => {
         </nav>
       </div>
 
-      {/* Main Content Area */}
+      {banner}
+
       <main className="flex-1 max-w-7xl w-full mx-auto p-8 space-y-8">
         {children}
       </main>
