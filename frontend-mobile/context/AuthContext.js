@@ -43,15 +43,22 @@ export const AuthProvider = ({ children }) => {
             if (!access) {
                 throw new Error("No access token returned from backend");
             }
-            await AsyncStorage.setItem('jwt_token', access);
-            await AsyncStorage.setItem('refresh_token', refresh);
+            
+            // Fetch user data FIRST
             const userResponse = await api.get('/accounts/users/me/', {
                 headers: {
                     Authorization: `Bearer ${access}`
                 }
             });
             const userData = userResponse.data;
+            
+            // Only persist to storage if BOTH requests succeed
+            await AsyncStorage.setItem('jwt_token', access);
+            if (refresh) {
+                await AsyncStorage.setItem('refresh_token', refresh);
+            }
             await AsyncStorage.setItem('user', JSON.stringify(userData));
+            
             setUser(userData);
             router.replace('/(tabs)/home');
         } catch (error) {
