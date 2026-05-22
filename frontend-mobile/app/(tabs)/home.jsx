@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,19 +17,35 @@ import Card from "../components/Card";
 import Prediction from "../components/Prediction";
 import FeatureItem from "../components/FeatureItem";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import api from "../../api/axios";
 
 const Home = ({ currentUser }) => {
   const router = useRouter();
-  const credentials = [
-    { id: 1, title: "Transcript of Records", description: "Complete academic record of all courses taken and grades earned.", price: 150, icon: "file-text" },
-    { id: 2, title: "Honorable Dismissal", description: "Transfer clearance document for moving to another institution.", price: 100, icon: "shield" },
-    { id: 3, title: "Authentication", description: "Official verification and authentication of academic documents.", price: 75, icon: "check-square" },
-    { id: 4, title: "Evaluation", description: "Detailed academic assessment and progress evaluation report.", price: 75, icon: "file-text" },
-    { id: 5, title: "Certification", description: "Official certificates for various academic achievements.", price: 150, icon: "award" },
-    { id: 6, title: "CAR", description: "Cumulative Academic Record summarizing your entire academic history.", price: 80, icon: "file-text" }
-  ];
+  const [documents, setDocuments] = useState([]);
+  const [trackingId, setTrackingId] = useState("");
 
-  const visibleCredentials = credentials;
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await api.get('/documents/');
+        setDocuments(response.data);
+      } catch (error) {
+        console.error("Failed to fetch documents:", error);
+      }
+    };
+    fetchDocuments();
+  }, []);
+
+  const getIconForDoc = (name) => {
+    if (!name) return 'file';
+    const n = name.toLowerCase();
+    if (n.includes('transcript')) return 'file-text';
+    if (n.includes('dismissal')) return 'shield';
+    if (n.includes('authentication')) return 'check-square';
+    if (n.includes('evaluation')) return 'file-text';
+    if (n.includes('certification')) return 'award';
+    return 'file';
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -95,31 +111,31 @@ const Home = ({ currentUser }) => {
         <Text style={styles.sectionTitle}>Available Credentials</Text>
 
         <View style={styles.credentialsGrid}>
-          {visibleCredentials.map((cred, index) => (
-            <Card key={cred.id} style={styles.credentialCard}>
+          {documents.map((doc, index) => (
+            <Card key={doc.id} style={styles.credentialCard}>
 
               <View style={[
                 styles.cardHeaderBg,
-                styles[`headerColor${index + 1}`]
+                styles[`headerColor${(index % 6) + 1}`]
               ]}>
                 <View style={styles.cardIconWrapper}>
-                  <Icon name={cred.icon} size={32} style={styles.cardIcon} />
+                  <Icon name={getIconForDoc(doc.document_name)} size={32} style={styles.cardIcon} />
                 </View>
               </View>
 
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{cred.title}</Text>
-                <Text style={styles.cardDesc}>{cred.description}</Text>
+                <Text style={styles.cardTitle}>{doc.document_name}</Text>
+                <Text style={styles.cardDesc} numberOfLines={2}>{doc.description}</Text>
 
-                <Prediction label="Estimated Processing Time" result="3 to 5 Days" confidence={95} />
+                <Prediction label="Estimated Processing Time" result={`${doc.processing_time_days} Days`} confidence={95} />
 
                 <View style={styles.cardFooter}>
-                  <Text style={styles.priceTag}>₱ {cred.price}</Text>
+                  <Text style={styles.priceTag}>₱ {doc.price}</Text>
 
                   <Button
                     style={styles.requestBtnSmall}
                     textStyle={{ color: "#fff", fontSize: 11, fontWeight: "600" }}
-                    onPress={() => router.push("/(tabs)/request")}
+                    onPress={() => router.push({ pathname: "/(tabs)/request", params: { selectedDocId: doc.id } })}
                     title="Request →"
                   />
                 </View>
@@ -152,12 +168,14 @@ const Home = ({ currentUser }) => {
               style={styles.statusInput}
               placeholder="Enter Reference ID (e.g., RQ-000123)"
               placeholderTextColor="#9ca3af"
+              value={trackingId}
+              onChangeText={setTrackingId}
             />
 
             <Button
               style={styles.statusBtn}
               textStyle={{ color: "#fff", fontWeight: "700", fontSize: 13 }}
-              onPress={() => router.push("/(tabs)/track")}
+              onPress={() => router.push({ pathname: "/(tabs)/track", params: { trackingNumber: trackingId } })}
               title="Track Now"
             />
           </View>
