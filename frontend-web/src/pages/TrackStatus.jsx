@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Check, Clock, FileText, Package } from 'lucide-react';
+import { Check, Clock, FileText, Package, X } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
@@ -51,22 +51,44 @@ const TrackStatus = ({ currentUser }) => {
     };
 
     const getStatusState = (stepIndex, currentStatus) => {
-        const statuses = ['pending', 'processing', 'ready', 'claimed'];
+        const statuses = ['pending', 'processing', 'approved', 'completed'];
+        
+        if (currentStatus === 'rejected' || currentStatus === 'cancelled') {
+            return stepIndex === 0 ? 'completed' : 'pending';
+        }
+        
         const currentIdx = statuses.indexOf(currentStatus);
         
         if (currentIdx > stepIndex) return 'completed';
         if (currentIdx === stepIndex) {
-            return currentStatus === 'claimed' ? 'completed' : 'active';
+            return currentStatus === 'completed' ? 'completed' : 'active';
         }
         return 'pending';
     };
 
-    const statusData = requestData ? [
-        { id: 1, title: 'Request Received', date: new Date(requestData.created_at).toLocaleDateString(), status: getStatusState(0, requestData.status) },
-        { id: 2, title: 'Processing', date: ['processing', 'ready', 'claimed'].includes(requestData.status) ? 'Started' : 'Pending', status: getStatusState(1, requestData.status) },
-        { id: 3, title: 'Ready for Pickup', date: ['ready', 'claimed'].includes(requestData.status) ? 'Done' : 'Pending', status: getStatusState(2, requestData.status) },
-        { id: 4, title: 'Claimed', date: requestData.status === 'claimed' ? 'Done' : 'Pending', status: getStatusState(3, requestData.status) },
-    ] : [];
+    const isErrorState = requestData?.status === 'rejected' || requestData?.status === 'cancelled';
+    
+    let statusData = [];
+    if (requestData) {
+        if (isErrorState) {
+            statusData = [
+                { id: 1, title: 'Request Received', date: new Date(requestData.created_at).toLocaleDateString(), status: 'completed' },
+                { 
+                    id: 2, 
+                    title: requestData.status === 'rejected' ? 'Request Rejected' : 'Request Cancelled', 
+                    date: 'Terminated', 
+                    status: 'error' 
+                }
+            ];
+        } else {
+            statusData = [
+                { id: 1, title: 'Request Received', date: new Date(requestData.created_at).toLocaleDateString(), status: getStatusState(0, requestData.status) },
+                { id: 2, title: 'Processing', date: ['processing', 'approved', 'completed'].includes(requestData.status) ? 'Started' : 'Pending', status: getStatusState(1, requestData.status) },
+                { id: 3, title: 'Ready for Pickup', date: ['approved', 'completed'].includes(requestData.status) ? 'Done' : 'Pending', status: getStatusState(2, requestData.status) },
+                { id: 4, title: 'Claimed', date: requestData.status === 'completed' ? 'Done' : 'Pending', status: getStatusState(3, requestData.status) },
+            ];
+        }
+    }
 
     return (
         <div className="track-status-page">
@@ -103,11 +125,14 @@ const TrackStatus = ({ currentUser }) => {
                         <div className="track-result-header">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignSelf: 'center' }}>
                                 <span className="track-id-label" style={{ fontWeight: '600' }}>Tracking ID: {requestData.tracking_number}</span>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <span style={{ fontWeight: '600', color: '#1e293b', fontSize: '1.1rem' }}>{requestData.document_name || 'Document'}</span>
-                                    <span style={{ backgroundColor: '#e0e7ff', color: '#4338ca', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                                        {requestData.quantity}x
-                                    </span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                    {requestData.documents_summary ? requestData.documents_summary.split('\n').map((line, index) => (
+                                        <span key={index} style={{ fontWeight: '600', color: '#1e293b', fontSize: '1.1rem' }}>
+                                            {line}
+                                        </span>
+                                    )) : (
+                                        <span style={{ fontWeight: '600', color: '#1e293b', fontSize: '1.1rem' }}>Document Request</span>
+                                    )}
                                 </div>
                             </div>
                             <div>
@@ -133,6 +158,8 @@ const TrackStatus = ({ currentUser }) => {
                                     <div className="timeline-icon-container">
                                         {(item.status === 'completed' || item.status === 'active') ? (
                                             <Check size={item.status === 'completed' ? 18 : 16} strokeWidth={3} />
+                                        ) : item.status === 'error' ? (
+                                            <X size={18} strokeWidth={3} />
                                         ) : (
                                             item.id === 2 ? <Clock size={16} strokeWidth={2.5} /> :
                                             item.id === 3 ? <FileText size={16} strokeWidth={2.5} /> :

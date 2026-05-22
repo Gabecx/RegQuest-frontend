@@ -49,13 +49,7 @@ const ProfilePage = ({ currentUser }) => {
                                 <Lock size={18} />
                                 Security & Password
                             </button>
-                            <button 
-                                className={`profile-nav-btn ${activeTab === 'payment' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('payment')}
-                            >
-                                <CreditCard size={18} />
-                                Payment Methods
-                            </button>
+
                             <button 
                                 className={`profile-nav-btn ${activeTab === 'notifications' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('notifications')}
@@ -162,27 +156,7 @@ const ProfilePage = ({ currentUser }) => {
                             </Card>
                         )}
 
-                        {activeTab === 'payment' && (
-                            <Card className="profile-content-card">
-                                <h2 className="content-title">Payment Methods</h2>
-                                <hr className="content-divider" />
-                                
-                                <div className="saved-payments">
-                                    <div className="payment-card-item">
-                                        <div className="payment-icon gcash">GC</div>
-                                        <div className="payment-details">
-                                            <h4>GCash</h4>
-                                            <p>0912 •••• 5678</p>
-                                        </div>
-                                        <span className="badge default">Default</span>
-                                    </div>
-                                </div>
-                                
-                                <Button className="btn-outline dashed-btn">
-                                    + Add New Payment Method
-                                </Button>
-                            </Card>
-                        )}
+
 
                         {activeTab === 'notifications' && (
                             <Card className="profile-content-card">

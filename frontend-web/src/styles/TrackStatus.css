@@ -184,6 +184,15 @@
     color: var(--color-primary);
 }
 
+.timeline-step.error .timeline-icon-container {
+    background-color: #ef4444;
+    color: white;
+}
+
+.timeline-step.error .timeline-title {
+    color: #ef4444;
+}
+
 .timeline-step.pending .timeline-icon-container {
     background-color: #e9ecef;
     color: #adb5bd;

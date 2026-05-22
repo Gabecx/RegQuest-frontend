@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Restore session on app load
     useEffect(() => {
         const loadStoredUser = async () => {
             try {
@@ -34,40 +33,40 @@ export const AuthProvider = ({ children }) => {
         loadStoredUser();
     }, []);
 
-    // LOGIN
     const login = async (email, password) => {
         try {
-            const response = await api.post('/accounts/login/', {
+            const tokenResponse = await api.post('/accounts/login/', {
                 email,
                 password
             });
-
-            const { access, refresh, user: userData } = response.data;
-
+            const { access, refresh } = tokenResponse.data;
             if (!access) {
                 throw new Error("No access token returned from backend");
             }
-
+            
+            // Fetch user data FIRST
+            const userResponse = await api.get('/accounts/users/me/', {
+                headers: {
+                    Authorization: `Bearer ${access}`
+                }
+            });
+            const userData = userResponse.data;
+            
+            // Only persist to storage if BOTH requests succeed
             await AsyncStorage.setItem('jwt_token', access);
-
             if (refresh) {
                 await AsyncStorage.setItem('refresh_token', refresh);
             }
-
-            if (userData) {
-                await AsyncStorage.setItem('user', JSON.stringify(userData));
-                setUser(userData);
-            }
-
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            
+            setUser(userData);
             router.replace('/(tabs)/home');
-
         } catch (error) {
             console.log("Login error:", error.response?.data || error.message);
             throw error;
         }
     };
 
-    // LOGOUT
     const logout = async () => {
         try {
             await AsyncStorage.removeItem('jwt_token');

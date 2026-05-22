@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { User as UserIcon, FileText, Shield, Award, FileCheck } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Prediction from '../components/Prediction';
@@ -10,51 +12,54 @@ import '../styles/HomePage.css';
 const HomePage = ({ currentUser }) => {
 
     const navigate = useNavigate();
+    const [documents, setDocuments] = useState([]);
+    const [loadingDocs, setLoadingDocs] = useState(true);
+    const [trackingId, setTrackingId] = useState('');
 
-    const credentials = [
-        {
-            id: 1,
-            title: "Transcript of Records",
-            description: "Complete academic record of all courses taken and grades earned.",
-            price: 150,
-            icon: <FileText size={40} />
-        },
-        {
-            id: 2,
-            title: "Honorable Dismissal",
-            description: "Transfer clearance document for moving to another institution.",
-            price: 100,
-            icon: <Shield size={40} />
-        },
-        {
-            id: 3,
-            title: "Authentication",
-            description: "Official verification and authentication of academic documents.",
-            price: 75,
-            icon: <FileCheck size={40} />
-        },
-        {
-            id: 4,
-            title: "Evaluation",
-            description: "Detailed academic assessment and progress evaluation report.",
-            price: 75,
-            icon: <FileText size={40} />
-        },
-        {
-            id: 5,
-            title: "Certification",
-            description: "Official certificates for various academic achievements.",
-            price: 150,
-            icon: <Award size={40} />
-        },
-        {
-            id: 6,
-            title: "CAR",
-            description: "Cumulative Academic Record summarizing your entire academic history.",
-            price: 80,
-            icon: <FileText size={40} />
+    useEffect(() => {
+        const fetchDocuments = async () => {
+            try {
+                const response = await api.get('/documents/');
+                const data = response.data;
+                const formatted = data.map(item => {
+                    let icon = <FileText size={40} />;
+                    const name = (item.document_name || item.name || '').toLowerCase();
+                    if (name.includes('honorable') || name.includes('dismissal')) icon = <Shield size={40} />;
+                    else if (name.includes('auth')) icon = <FileCheck size={40} />;
+                    else if (name.includes('cert')) icon = <Award size={40} />;
+                    
+                    return {
+                        id: item.id,
+                        title: item.document_name || item.name,
+                        description: item.description || "Official academic record",
+                        price: parseFloat(item.price) || 0,
+                        icon: icon
+                    };
+                });
+                setDocuments(formatted.slice(0, 6)); // Display up to 6 on home page
+            } catch (err) {
+                console.error("Failed to fetch documents:", err);
+            } finally {
+                setLoadingDocs(false);
+            }
+        };
+
+        fetchDocuments();
+    }, []);
+
+    const handleTrack = () => {
+        if (trackingId.trim()) {
+            navigate('/track-status', { state: { trackingNumber: trackingId } });
+        } else {
+            navigate('/track-status');
         }
-    ];
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleTrack();
+        }
+    };
 
     const features = [
         {
@@ -116,7 +121,11 @@ const HomePage = ({ currentUser }) => {
                 <h2 className="section-title">Available Credentials</h2>
 
                 <div className="credentials-grid">
-                    {credentials.map((cred) => (
+                    {loadingDocs ? (
+                        <p style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem', color: '#6b7280' }}>Loading available credentials...</p>
+                    ) : documents.length === 0 ? (
+                        <p style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '2rem', color: '#6b7280' }}>No credentials available at the moment.</p>
+                    ) : documents.map((cred) => (
                         <Card key={cred.id} className="credential-card">
                             <div className="card-header-bg">
                                 <div className="card-icon">{cred.icon}</div>
@@ -142,7 +151,7 @@ const HomePage = ({ currentUser }) => {
 
                                 <div className="card-footer" style={{ marginTop: '0' }}>
                                     <span className="price-tag">₱ {cred.price}</span>
-                                    <Button className="request-btn-small" onClick={() => navigate('/request-document')}>Request →</Button>
+                                    <Button className="request-btn-small" onClick={() => navigate('/request-document', { state: { selectedDocId: cred.id } })}>Request →</Button>
                                 </div>
                             </div>
                         </Card>
@@ -164,9 +173,12 @@ const HomePage = ({ currentUser }) => {
                     <input
                         type="text"
                         className="status-input"
-                        placeholder="Enter Reference ID (e.g., RQ-000123)"
+                        placeholder="Enter Reference ID (e.g., REQ-1234ABCD)"
+                        value={trackingId}
+                        onChange={(e) => setTrackingId(e.target.value)}
+                        onKeyDown={handleKeyDown}
                     />
-                    <Button className="status-btn" onClick={() => navigate('/track-status')}>Track Now</Button>
+                    <Button className="status-btn" onClick={handleTrack}>Track Now</Button>
                 </div>
             </section>
             )}

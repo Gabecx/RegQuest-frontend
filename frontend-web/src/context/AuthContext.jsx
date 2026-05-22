@@ -49,16 +49,13 @@ export const AuthProvider = ({ children }) => {
             password
         });
 
-        const { access, refresh} = tokenResponse.data;
+        const { access, refresh, user: userData } = tokenResponse.data;
 
         localStorage.setItem('jwt_token', access);
         localStorage.setItem('refresh_token', refresh);
 
-        const userResponse = await api.get('/accounts/users/me/');
-
-        const userData = userResponse.data;
-
         localStorage.setItem('user', JSON.stringify(userData));
+        
         setUser(userData);
 
         if (userData.role === 'admin') {

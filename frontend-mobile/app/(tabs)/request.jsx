@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,34 +7,55 @@ import {
   TextInput,
   SafeAreaView,
   Image,
+  Alert
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { Check, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react-native";
 import styles from "../styles/requestStyles";
 import Card from "../components/Card";
 import Button from "../components/Button";
-
-const DOCUMENTS = [
-  { id: 1, name: "Transcript of Records (TOR)", description: "Official academic record", price: 125, isPerPg: true },
-  { id: 2, name: "Honorable Dismissal",         description: "Official academic record", price: 100, isPerPg: false },
-  { id: 3, name: "Evaluation",                  description: "Official academic record", price: 50,  isPerPg: false },
-  { id: 4, name: "Authentication",              description: "Official academic record", price: 5,   isPerPg: true },
-  { id: 5, name: "CAR",                         description: "Official academic record", price: 80,  isPerPg: false },
-  { id: 6, name: "GPA",                         description: "Official academic record", price: 80,  isPerPg: false },
-  { id: 7, name: "Endorsement",                 description: "Official academic record", price: 80,  isPerPg: false },
-  { id: 8, name: "Officially Enrolled",         description: "Official academic record", price: 80,  isPerPg: false },
-  { id: 9, name: "Earned Units",                description: "Official academic record", price: 80,  isPerPg: false },
-];
+import api from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
 
 const STEPS = ["Select Document", "Review Data", "Payment", "Complete"];
 
-export default function RequestDocument({ currentUser }) {
+export default function RequestDocument() {
+  const { user } = useAuth();
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const [DOCUMENTS, setDocuments] = useState([]);
   const [selectedDocs, setSelectedDocs] = useState([]);
   const [copies, setCopies] = useState({});
   const [currentStep, setCurrentStep] = useState(1);
   const [purpose, setPurpose] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [trackingNumber, setTrackingNumber] = useState("");
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await api.get('/documents/');
+        const docs = response.data.map(d => ({
+          id: d.id,
+          name: d.document_name,
+          description: d.description,
+          price: parseFloat(d.price),
+          isPerPg: false,
+          processing_time_days: d.processing_time_days || 3
+        }));
+        setDocuments(docs);
+        
+        if (params.selectedDocId) {
+          const docId = parseInt(params.selectedDocId);
+          setSelectedDocs([docId]);
+          setCopies({ [docId]: 1 });
+        }
+      } catch (error) {
+        console.error("Failed to fetch documents:", error);
+      }
+    };
+    fetchDocuments();
+  }, [params.selectedDocId]);
 
   const toggleSelection = (id) => {
     setSelectedDocs((prev) =>
@@ -58,8 +79,37 @@ export default function RequestDocument({ currentUser }) {
       0
     );
 
-  const handleNext = () => { if (currentStep < 4) setCurrentStep(currentStep + 1); };
+  const handleNext = () => { 
+    if (currentStep === 1 && selectedDocs.length === 0) {
+      Alert.alert("Selection Required", "Please select at least one document to proceed.");
+      return;
+    }
+    if (currentStep < 4) setCurrentStep(currentStep + 1); 
+  };
   const handleBack = () => { if (currentStep > 1) setCurrentStep(currentStep - 1); };
+
+  const submitRequest = async () => {
+    try {
+      setIsSubmitting(true);
+      const selected = DOCUMENTS.filter(d => selectedDocs.includes(d.id));
+      const summary = selected.map(d => `${d.name} x${getCopies(d.id)}`).join('\n');
+      const maxDays = Math.max(...selected.map(d => d.processing_time_days), 3);
+
+      const response = await api.post("/requests/", {
+        documents_summary: summary,
+        purpose: purpose,
+        processing_time_days: maxDays,
+        total_price: calculateTotal().toFixed(2)
+      });
+      setTrackingNumber(response.data.tracking_number);
+      setCurrentStep(4);
+    } catch (error) {
+      console.error("Submission error:", error);
+      Alert.alert("Submission Failed", "An error occurred while submitting your request.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -197,47 +247,47 @@ export default function RequestDocument({ currentUser }) {
                   <View style={styles.formGroupHalf}>
                     <Text style={styles.formLabel}>Full Name</Text>
                     <View style={styles.formInput}>
-                      <Text style={styles.formInputText}>Juan De Letchi</Text>
+                      <Text style={styles.formInputText}>{user ? (`${user.first_name || ""} ${user.last_name || ""}`.trim() || "N/A") : "Loading..."}</Text>
                     </View>
                   </View>
                   <View style={styles.formGroupHalf}>
                     <Text style={styles.formLabel}>Year level</Text>
                     <View style={styles.formInput}>
-                      <Text style={styles.formInputText}>1st year</Text>
+                      <Text style={styles.formInputText}>{user?.year_level ? (user.year_level == 1 ? "1st Year" : user.year_level == 2 ? "2nd Year" : user.year_level == 3 ? "3rd Year" : `${user.year_level}th Year`) : "N/A"}</Text>
                     </View>
                   </View>
                   <View style={styles.formGroupHalf}>
                     <Text style={styles.formLabel}>Student ID</Text>
                     <View style={styles.formInput}>
-                      <Text style={styles.formInputText}>2026262626</Text>
+                      <Text style={styles.formInputText}>{user?.univ_id || user?.id}</Text>
                     </View>
                   </View>
                   <View style={styles.formGroupHalf}>
                     <Text style={styles.formLabel}>Program/Course</Text>
                     <View style={styles.formInput}>
-                      <Text style={styles.formInputText} numberOfLines={1}>BS in Information Technology</Text>
+                      <Text style={styles.formInputText} numberOfLines={1}>{user?.course || "N/A"}</Text>
                     </View>
                   </View>
                   <View style={styles.formGroupFull}>
                     <Text style={styles.formLabel}>Email</Text>
                     <View style={styles.formInput}>
-                      <Text style={styles.formInputText}>Juan@email.com</Text>
+                      <Text style={styles.formInputText}>{user?.email}</Text>
                     </View>
                   </View>
                 </View>
               </View>
+            </View>
 
-              <View style={[styles.reviewSection, { marginBottom: 0 }]}>
-                <Text style={styles.sectionSubtitle}>Purpose of Request:</Text>
-                <View style={styles.divider} />
-                <TextInput
-                  style={styles.purposeInput}
-                  placeholder="For personal files"
-                  placeholderTextColor="#9ca3af"
-                  value={purpose}
-                  onChangeText={setPurpose}
-                />
-              </View>
+            <View style={[styles.reviewSection, { marginBottom: 0, paddingHorizontal: 4 }]}>
+              <Text style={styles.sectionSubtitle}>Purpose of Request:</Text>
+              <View style={styles.divider} />
+              <TextInput
+                style={styles.purposeInput}
+                placeholder="For personal files"
+                placeholderTextColor="#9ca3af"
+                value={purpose}
+                onChangeText={setPurpose}
+              />
             </View>
 
             <Text style={styles.warningText}>
@@ -286,38 +336,18 @@ export default function RequestDocument({ currentUser }) {
               <Text style={styles.estimateValue}>3 to 5 Days</Text>
             </View>
 
-            <Text style={styles.paymentMethodTitle}>Select Payment Method</Text>
-
-            {[
-              { key: "Maya",  label: "Maya",  icon: "💳" },
-              { key: "GCash", label: "GCash", icon: "💙" },
-              { key: "Cash",  label: "Cash",  icon: "💵" },
-            ].map((method) => (
-              <TouchableOpacity
-                key={method.key}
-                style={[
-                  styles.methodRadioRow,
-                  paymentMethod === method.key && styles.methodRadioRowSelected,
-                ]}
-                onPress={() => setPaymentMethod(method.key)}
-                activeOpacity={0.7}
-              >
-                <View style={[
-                  styles.radioCircle,
-                  paymentMethod === method.key && styles.radioCircleSelected,
-                ]}>
-                  {paymentMethod === method.key && <View style={styles.radioInner} />}
-                </View>
-                <Text style={styles.methodRadioLabel}>{method.label}</Text>
-              </TouchableOpacity>
-            ))}
-
             <View style={[styles.actionRow, { marginTop: 24 }]}>
               <Button style={styles.btnBack} textStyle={styles.btnBackText} onPress={handleBack}>
                 <ChevronLeft size={16} color="#374151" />
                 <Text style={styles.btnBackText}>Back</Text>
               </Button>
-              <Button style={styles.btnNext} textStyle={styles.btnNextText} onPress={handleNext} title="Pay & Submit" />
+              <Button 
+                style={styles.btnNext} 
+                textStyle={styles.btnNextText} 
+                onPress={submitRequest} 
+                title={isSubmitting ? "Submitting..." : "Submit Request"} 
+                disabled={isSubmitting} 
+              />
             </View>
           </Card>
         )}
@@ -334,11 +364,20 @@ export default function RequestDocument({ currentUser }) {
               </Text>
               <View style={styles.trackingBox}>
                 <Text style={styles.trackingLabel}>Your Tracking ID</Text>
-                <Text style={styles.trackingId}>RQ-097323</Text>
+                <Text style={styles.trackingId}>{trackingNumber}</Text>
               </View>
               <View style={styles.completeActions}>
-                <Button style={styles.btnSubmit} textStyle={styles.btnSubmitText} onPress={() => router.push("/(tabs)/track")} title="Track Status" />
-                <Button style={styles.btnHome} textStyle={styles.btnHomeText} onPress={() => router.push("/(tabs)/home")} title="Back to Home" />
+                <Button style={styles.btnSubmit} textStyle={styles.btnSubmitText} onPress={() => router.push({ pathname: "/(tabs)/track", params: { trackingNumber } })} title="Track Status" />
+                <Button 
+                  style={styles.btnHome} 
+                  textStyle={styles.btnHomeText} 
+                  onPress={() => {
+                    setSelectedDocs([]);
+                    setPurpose("");
+                    setCurrentStep(1);
+                  }} 
+                  title="New Request" 
+                />
               </View>
             </View>
           </Card>

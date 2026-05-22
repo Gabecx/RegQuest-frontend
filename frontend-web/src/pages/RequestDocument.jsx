@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, CheckCircle, Check, AlertCircle } from 'lucide-react';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
@@ -11,6 +11,7 @@ import '../styles/RequestDocument.css';
 const RequestDocument = ({ currentUser }) => {
     const [documents, setDocuments] = useState([]);
     const [selectedDocs, setSelectedDocs] = useState([]);
+    const [copies, setCopies] = useState({});
     const [currentStep, setCurrentStep] = useState(1);
     const [purpose, setPurpose] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
@@ -18,9 +19,32 @@ const RequestDocument = ({ currentUser }) => {
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [trackingNumber, setTrackingNumber] = useState('');
+    const [toastError, setToastError] = useState('');
 
     const navigate = useNavigate();
     const stepperRef = useRef(null);
+    const location = useLocation();
+
+    useEffect(() => {
+        const handleLinkClick = (e) => {
+            if (selectedDocs.length > 0 && currentStep < 4) {
+                const target = e.target.closest('a');
+                if (target && target.href && !target.href.includes('#') && !target.target) {
+                    e.preventDefault();
+                    setToastError("Please complete or cancel your current request before navigating away.");
+                    setTimeout(() => setToastError(''), 3000);
+                }
+            }
+        };
+        document.addEventListener('click', handleLinkClick, true);
+        return () => document.removeEventListener('click', handleLinkClick, true);
+    }, [selectedDocs, currentStep]);
+
+    useEffect(() => {
+        if (location.state?.selectedDocId) {
+            setSelectedDocs([location.state.selectedDocId]);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         const fetchDocuments = async () => {
@@ -33,7 +57,8 @@ const RequestDocument = ({ currentUser }) => {
                     name: item.document_name || item.name,
                     description: item.description || "Official academic record",
                     price: parseFloat(item.price) || 0,
-                    isPerPg: item.is_per_pg || false
+                    isPerPg: item.is_per_pg || false,
+                    processing_time_days: item.processing_time_days || 3
                 }));
 
                 setDocuments(formatted);
@@ -60,7 +85,6 @@ const RequestDocument = ({ currentUser }) => {
         fetchDocuments();
     }, []);
 
-    // Auto-scroll stepper on mobile when currentStep changes
     useEffect(() => {
         if (stepperRef.current) {
             const activeStep = stepperRef.current.children[currentStep - 1];
@@ -71,18 +95,38 @@ const RequestDocument = ({ currentUser }) => {
     }, [currentStep]);
 
     const toggleSelection = (id) => {
-        setSelectedDocs(prev => 
-            prev.includes(id) ? prev.filter(docId => docId !== id) : [...prev, id]
-        );
+        if (selectedDocs.includes(id)) {
+            setSelectedDocs(selectedDocs.filter(docId => docId !== id));
+        } else {
+            setSelectedDocs([...selectedDocs, id]);
+            if (!copies[id]) {
+                setCopies(prev => ({ ...prev, [id]: 1 }));
+            }
+        }
     };
+
+    const changeCopy = (id, delta, e) => {
+        if (e) e.stopPropagation();
+        setCopies(prev => ({
+            ...prev,
+            [id]: Math.max(1, (prev[id] || 1) + delta)
+        }));
+    };
+
+    const getCopies = (id) => copies[id] || 1;
 
     const calculateTotal = () => {
         return documents
             .filter(doc => selectedDocs.includes(doc.id))
-            .reduce((total, doc) => total + (parseFloat(doc.price) || 0), 0);
+            .reduce((total, doc) => total + ((parseFloat(doc.price) || 0) * getCopies(doc.id)), 0);
     };
 
     const handleNextStep = () => {
+        if (currentStep === 1 && selectedDocs.length === 0) {
+            setToastError("Please select at least one document to proceed.");
+            setTimeout(() => setToastError(''), 3000);
+            return;
+        }
         if (currentStep < 4) {
             setCurrentStep(currentStep + 1);
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -102,15 +146,15 @@ const RequestDocument = ({ currentUser }) => {
         try {
             setSubmitting(true);
 
-            // Calculate a release date (e.g., 5 days from now)
-            const releaseDate = new Date();
-            releaseDate.setDate(releaseDate.getDate() + 5);
+            const selected = documents.filter(doc => selectedDocs.includes(doc.id));
+            const summary = selected.map(doc => `${doc.name} x${getCopies(doc.id)}`).join('\n');
+            const maxDays = Math.max(...selected.map(doc => doc.processing_time_days || 3), 3);
 
             const response = await api.post("/requests/", {
-                document_type: selectedDocs[0], // DRF expects the ID for ForeignKey
-                quantity: 1,
-                total_price: calculateTotal().toFixed(2),
-                est_release_date: releaseDate.toISOString()
+                documents_summary: summary,
+                purpose: purpose,
+                processing_time_days: maxDays,
+                total_price: calculateTotal().toFixed(2)
             });
 
             console.log("Submission successful:", response.data);
@@ -132,6 +176,13 @@ const RequestDocument = ({ currentUser }) => {
     return (
         <div className="request-document-page">
             <Navbar currentUser={currentUser} />
+            
+            {toastError && (
+                <div className="toast-error">
+                    <AlertCircle size={20} />
+                    <span>{toastError}</span>
+                </div>
+            )}
             
             <main className="request-main-content">
                 <div className="stepper-container" ref={stepperRef}>
@@ -161,25 +212,37 @@ const RequestDocument = ({ currentUser }) => {
                             {documents.map((doc) => {
                                 const isSelected = selectedDocs.includes(doc.id);
                                 return (
-                                    <div 
-                                        key={doc.id} 
-                                        className={`document-item ${isSelected ? 'selected' : ''}`}
-                                        onClick={() => toggleSelection(doc.id)}
-                                    >
-                                        <div className="checkbox-container">
-                                            <div className={`custom-checkbox ${isSelected ? 'checked' : ''}`}>
-                                                {isSelected && (
-                                                    <Check size={14} color="white" strokeWidth={3} />
-                                                )}
+                                    <div key={doc.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <div 
+                                            className={`document-item ${isSelected ? 'selected' : ''}`}
+                                            onClick={() => toggleSelection(doc.id)}
+                                            style={isSelected ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderBottomWidth: 0, marginBottom: 0 } : {}}
+                                        >
+                                            <div className="checkbox-container">
+                                                <div className={`custom-checkbox ${isSelected ? 'checked' : ''}`}>
+                                                    {isSelected && (
+                                                        <Check size={14} color="white" strokeWidth={3} />
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="document-info">
+                                                <h3 className="document-name">{doc.name}</h3>
+                                                <p className="document-desc">{doc.description}</p>
+                                            </div>
+                                            <div className="document-price">
+                                                P{Number(doc.price).toFixed(2)}{doc.isPerPg ? '/pg' : ''}
                                             </div>
                                         </div>
-                                        <div className="document-info">
-                                            <h3 className="document-name">{doc.name}</h3>
-                                            <p className="document-desc">{doc.description}</p>
-                                        </div>
-                                        <div className="document-price">
-                                            P{Number(doc.price).toFixed(2)}{doc.isPerPg ? '/pg' : ''}
-                                        </div>
+                                        {isSelected && (
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.25rem', backgroundColor: '#f8f9fa', borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', border: '2px solid #6E5AE1', borderTop: 'none', marginTop: '-0.5rem' }}>
+                                                <span style={{ fontSize: '0.9rem', color: '#6c757d', fontWeight: '600' }}>Number of copy</span>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                    <button onClick={(e) => changeCopy(doc.id, -1, e)} style={{ width: '28px', height: '28px', borderRadius: '4px', border: '1px solid #ced4da', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold' }}>-</button>
+                                                    <span style={{ fontWeight: '700', minWidth: '20px', textAlign: 'center', color: '#110A7D' }}>{getCopies(doc.id)}</span>
+                                                    <button onClick={(e) => changeCopy(doc.id, 1, e)} style={{ width: '28px', height: '28px', borderRadius: '4px', border: '1px solid #ced4da', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 'bold' }}>+</button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -218,7 +281,7 @@ const RequestDocument = ({ currentUser }) => {
                                                 <h4 className="summary-doc-name">{doc.name}</h4>
                                                 <p className="summary-doc-desc">{doc.description}</p>
                                             </div>
-                                            <div className="summary-doc-qty">x1</div>
+                                            <div className="summary-doc-qty">x{getCopies(doc.id)}</div>
                                         </div>
                                     ))}
                                     {selectedDocs.length === 0 && (
@@ -239,7 +302,7 @@ const RequestDocument = ({ currentUser }) => {
                                         <label>Year Level</label>
                                         <input type="text" value={
                                             currentUser?.year_level 
-                                                ? `${currentUser.year_level}${['st', 'nd', 'rd'][(currentUser.year_level % 10) - 1] || 'th'} Year` 
+                                                ? (currentUser.year_level == 1 ? "1st Year" : currentUser.year_level == 2 ? "2nd Year" : currentUser.year_level == 3 ? "3rd Year" : `${currentUser.year_level}th Year`) 
                                                 : 'N/A'
                                         } readOnly />
                                     </div>
@@ -253,22 +316,22 @@ const RequestDocument = ({ currentUser }) => {
                                     </div>
                                     <div className="form-group full-width">
                                         <label>Program / Course</label>
-                                        <input type="text" value={currentUser?.program || currentUser?.course || 'N/A'} readOnly />
+                                        <input type="text" value={currentUser?.course || currentUser?.program || 'N/A'} readOnly />
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="review-section">
-                                <h3 className="section-subtitle">Purpose of Request:</h3>
-                                <hr className="section-divider" />
-                                <div className="form-group full-width">
-                                    <input 
-                                        type="text" 
-                                        placeholder="For Personal Files" 
-                                        value={purpose} 
-                                        onChange={(e) => setPurpose(e.target.value)} 
-                                    />
-                                </div>
+                        <div className="review-section" style={{ marginBottom: '1.5rem' }}>
+                            <h3 className="section-subtitle">Purpose of Request:</h3>
+                            <hr className="section-divider" />
+                            <div className="form-group full-width">
+                                <input 
+                                    type="text" 
+                                    placeholder="For Personal Files" 
+                                    value={purpose} 
+                                    onChange={(e) => setPurpose(e.target.value)} 
+                                />
                             </div>
                         </div>
 
@@ -276,10 +339,12 @@ const RequestDocument = ({ currentUser }) => {
 
                         <div className="action-buttons">
                             <Button className="btn-back" onClick={handleBack} style={{ fontWeight: 800, fontSize: '1.2rem', padding: '0 1rem' }}>
+                                <ChevronLeft size={16} />
                                 Back
                             </Button>
                             <Button className="btn-next" onClick={handleNextStep}>
                                 Next Step
+                                <ChevronRight size={16} />
                             </Button>
                         </div>
                     </Card>
@@ -300,7 +365,7 @@ const RequestDocument = ({ currentUser }) => {
                                             <h4 className="summary-doc-name">{doc.name}</h4>
                                             <p className="summary-doc-desc">{doc.description}</p>
                                         </div>
-                                        <div className="summary-doc-qty">P{Number(doc.price).toFixed(2)}{doc.isPerPg ? '/pg' : ''}</div>
+                                        <div className="summary-doc-qty">P{Number(doc.price).toFixed(2)} x {getCopies(doc.id)}{doc.isPerPg ? '/pg' : ''}</div>
                                     </div>
                                 ))}
                             </div>
@@ -316,31 +381,11 @@ const RequestDocument = ({ currentUser }) => {
                             <span className="estimate-value">3 to 5 Days</span>
                         </div>
 
-                        <h3 className="payment-method-title">Select Payment Method</h3>
-                        
-                        <div className="payment-methods-grid">
-                            <Button 
-                                className={`method-btn ${paymentMethod === 'GCash' ? 'selected' : ''}`}
-                                onClick={() => setPaymentMethod('GCash')}
-                            >
-                                GCash
-                            </Button>
-                            <Button 
-                                className={`method-btn ${paymentMethod === 'PayMaya' ? 'selected' : ''}`}
-                                onClick={() => setPaymentMethod('PayMaya')}
-                            >
-                                PayMaya
-                            </Button>
-                            <Button 
-                                className={`method-btn ${paymentMethod === 'Over-the-Counter' ? 'selected' : ''}`}
-                                onClick={() => setPaymentMethod('Over-the-Counter')}
-                            >
-                                Over-the-Counter
-                            </Button>
-                        </div>
+
 
                         <div className="action-buttons">
                             <Button className="btn-back" onClick={handleBack} style={{ fontWeight: 800, fontSize: '1.2rem', padding: '0 1rem' }}>
+                                <ChevronLeft size={16} />
                                 Back
                             </Button>
                             <Button 
@@ -348,7 +393,7 @@ const RequestDocument = ({ currentUser }) => {
                                 onClick={submitRequest}
                                 disabled={submitting}
                             >
-                                {submitting ? "Submitting..." : "Pay & Submit"}
+                                {submitting ? "Submitting..." : "Submit Request"}
                             </Button>
                         </div>
                     </Card>
@@ -375,9 +420,16 @@ const RequestDocument = ({ currentUser }) => {
                                 <Button className="btn-track" onClick={() => navigate('/track-status', { state: { trackingNumber: trackingNumber } })}>
                                     Track Status
                                 </Button>
-                                <Link to="/home" className="btn-home">
-                                    Back to Home
-                                </Link>
+                                <Button 
+                                    className="btn-home" 
+                                    onClick={() => {
+                                        setSelectedDocs([]);
+                                        setPurpose('');
+                                        setCurrentStep(1);
+                                    }}
+                                >
+                                    New Request
+                                </Button>
                             </div>
                         </div>
                     </Card>
