@@ -34,6 +34,10 @@ export default function Login() {
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
+      } else if (err.response && err.response.data && err.response.data.detail) {
+        setError(err.response.data.detail);
+      } else if (err.message && err.message.toLowerCase().includes("network error")) {
+        setError("Network error: Cannot connect to the server. Check your connection.");
       } else {
         setError("Invalid email or password.");
       }

@@ -2,7 +2,9 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
-const baseURL = process.env.EXPO_PUBLIC_API_URL || 'https://regquest-backend-2.onrender.com/api/v1';
+// For local development on a physical device, use your machine's IP address
+// Also make sure Django is running via: python manage.py runserver 0.0.0.0:8000
+const baseURL = process.env.EXPO_PUBLIC_API_URL || 'http://10.36.28.251:8000/api/v1';
 
 const api = axios.create({
     baseURL,

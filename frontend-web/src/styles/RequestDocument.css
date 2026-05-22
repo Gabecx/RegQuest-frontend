@@ -13,6 +13,28 @@
     padding: 2.5rem 1rem 5rem 1rem;
 }
 
+.toast-error {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #ef4444;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
 .stepper-container {
     display: flex;
     width: 100%;
@@ -303,6 +325,13 @@
 
 .form-group input:focus {
     border-color: var(--color-primary);
+}
+
+.form-group input[readOnly] {
+    background-color: #e9ecef;
+    color: #868e96;
+    cursor: not-allowed;
+    border-color: #dee2e6;
 }
 
 .warning-text {
