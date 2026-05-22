@@ -17,9 +17,9 @@ const Footer = () => {
                 <div className="footer-col">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><Link to="/home" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link></li>
-                        <li><Link to="/request-document" style={{ color: 'inherit', textDecoration: 'none' }}>Request Document</Link></li>
-                        <li><Link to="/track-status" style={{ color: 'inherit', textDecoration: 'none' }}>Track Status</Link></li>
+                        <li><Link to="/student/home" style={{ color: 'inherit', textDecoration: 'none' }}>Home</Link></li>
+                        <li><Link to="/student/request-document" style={{ color: 'inherit', textDecoration: 'none' }}>Request Document</Link></li>
+                        <li><Link to="/student/track-status" style={{ color: 'inherit', textDecoration: 'none' }}>Track Status</Link></li>
                     </ul>
                 </div>
 

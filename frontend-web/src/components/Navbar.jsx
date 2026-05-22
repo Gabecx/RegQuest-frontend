@@ -37,7 +37,7 @@ const Navbar = ({ currentUser }) => {
     return (
         <nav className="navbar">
             <div className="logo-section">
-                <Link to="/home">
+                <Link to="/student/home">
                     <img src={logo} alt="RegQuest" className="logo-image" />
                 </Link>
             </div>
@@ -52,19 +52,19 @@ const Navbar = ({ currentUser }) => {
             </button>
 
             <div className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-                <Link to="/home" className={isActive('/home')} onClick={() => setIsMenuOpen(false)}>Home</Link>
+                <Link to="/student/home" className={isActive('/student/home')} onClick={() => setIsMenuOpen(false)}>Home</Link>
                 
                 {user?.role === 'student' && (
                     <>
-                        <Link to="/request-document" className={isActive('/request-document')} onClick={() => setIsMenuOpen(false)}>Request Document</Link>
-                        <Link to="/track-status" className={isActive('/track-status')} onClick={() => setIsMenuOpen(false)}>Track Status</Link>
+                        <Link to="/student/request-document" className={isActive('/student/request-document')} onClick={() => setIsMenuOpen(false)}>Request Document</Link>
+                        <Link to="/student/track-status" className={isActive('/student/track-status')} onClick={() => setIsMenuOpen(false)}>Track Status</Link>
                     </>
                 )}
                  {user?.role === 'staff' && (
-                    <Link to="/staff-dashboard" className={isActive('/staff-dashboard')} onClick={() => setIsMenuOpen(false)}>Process Requests</Link>
+                    <Link to="/staff/dashboard" className={isActive('/staff/dashboard')} onClick={() => setIsMenuOpen(false)}>Process Requests</Link>
                 )}
                 {user?.role === 'admin' && (
-                    <Link to="/admin-dashboard" className={isActive('/admin-dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
+                    <Link to="/admin/dashboard" className={isActive('/admin/dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
                 )}
             </div>
 
@@ -88,7 +88,7 @@ const Navbar = ({ currentUser }) => {
 
                     {isDropdownOpen && (
                         <div className="profile-dropdown">
-                            <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                            <Link to="/student/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                                 <UserIcon size={16} />
                                 Profile
                             </Link>

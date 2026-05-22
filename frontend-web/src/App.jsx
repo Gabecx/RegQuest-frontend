@@ -5,47 +5,103 @@ import ScrollToTop from './components/ScrollToTop';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import SuccessPage from './pages/SuccessPage';
-import HomePage from './pages/HomePage';
-import RequestDocument from './pages/RequestDocument';
-import TrackStatus from './pages/TrackStatus';
-import ProfilePage from './pages/ProfilePage';
+
+import HomePage from './pages/student/HomePage';
+import RequestDocument from './pages/student/RequestDocument';
+import TrackStatus from './pages/student/TrackStatus';
+import ProfilePage from './pages/student/ProfilePage';
+
+import StaffDashboard from './pages/staff/Dashboard';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
   const { user } = useAuth();
-  
+
+  const getDashboardRoute = () => {
+    if (user?.role === 'student') return '/student/home';
+    if (user?.role === 'staff') return '/staff/dashboard';
+    if (user?.role === 'admin') return '/admin/dashboard';
+    return '/';
+  };
+
   return (
     <>
       <ScrollToTop />
+
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/home" replace /> : <LoginPage />} />
-        <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
+        {/* Public Routes */}
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Navigate to={getDashboardRoute()} replace />
+            ) : (
+              <LoginPage />
+            )
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            user ? (
+              <Navigate to={getDashboardRoute()} replace />
+            ) : (
+              <RegisterPage />
+            )
+          }
+        />
+
         <Route path="/success" element={<SuccessPage />} />
-               
-        <Route path="/home" element={
-          <ProtectedRoute>
-          <HomePage currentUser={user} />
-          </ProtectedRoute>
-        } />
-         
-        <Route path="/request-document" element={
+
+        {/* Student Routes */}
+        <Route
+          path="/student/home"
+          element={
             <ProtectedRoute allowedRoles={['student']}>
-                <RequestDocument currentUser={user} />
+              <HomePage currentUser={user} />
             </ProtectedRoute>
-        } />
-        
-        <Route path="/track-status" element={
+          }
+        />
+
+        <Route
+          path="/student/request-document"
+          element={
             <ProtectedRoute allowedRoles={['student']}>
-                <TrackStatus currentUser={user} />
+              <RequestDocument currentUser={user} />
             </ProtectedRoute>
-        } />
-        
-        <Route path="/profile" element={
-            <ProtectedRoute>
-                <ProfilePage currentUser={user} />
+          }
+        />
+
+        <Route
+          path="/student/track-status"
+          element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <TrackStatus currentUser={user} />
             </ProtectedRoute>
-        } />
+          }
+        />
+
+        <Route
+          path="/student/profile"
+          element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <ProfilePage currentUser={user} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Staff Route */}
+        <Route
+          path="/staff/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['staff']}>
+              <StaffDashboard currentUser={user} />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );

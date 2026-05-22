@@ -1,0 +1,139 @@
+.staff-dashboard {
+    min-height: 100vh;
+    background: #f3f4f6;
+}
+
+.staff-navbar {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.staff-logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.logout-btn {
+    border: 1px solid #d1d5db;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+.staff-header {
+    background: #111c68;
+    color: white;
+    padding: 2rem;
+}
+
+.staff-header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.staff-header span {
+    color: #facc15;
+}
+
+.staff-header p {
+    margin-top: 0.5rem;
+    color: #d1d5db;
+}
+
+.staff-main {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.staff-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.section-subtitle {
+    color: #6b7280;
+    margin-top: 0.3rem;
+    font-size: 0.9rem;
+}
+
+.summary-grid,
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-box {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.summary-box h4 {
+    font-size: 1.8rem;
+    margin-top: 0.5rem;
+}
+
+.stats-grid h3 {
+    font-size: 2rem;
+    margin: 0.5rem 0;
+}
+
+.stats-grid span {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.view-btn {
+    background: #1d4ed8;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.request-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.request-table th,
+.request-table td {
+    text-align: left;
+    padding: 1rem 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.status-badge {
+    background: #dcfce7;
+    color: #15803d;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+}
+
+.small-btn {
+    border: 1px solid #d1d5db;
+    background: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+}

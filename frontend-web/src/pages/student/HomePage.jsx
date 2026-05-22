@@ -1,11 +1,11 @@
 import { User as UserIcon, FileText, Shield, Award, FileCheck } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Prediction from '../components/Prediction';
-import Button from '../components/Button';
-import Card from '../components/Card';
-import '../styles/HomePage.css';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Prediction from '../../components/Prediction';
+import Button from '../../components/Button';
+import Card from '../../components/Card';
+import '../../styles/HomePage.css';
 
 const HomePage = ({ currentUser }) => {
 
@@ -96,15 +96,9 @@ const HomePage = ({ currentUser }) => {
                     <div className="hero-buttons">
                         {currentUser?.role === 'student' && (
                             <>
-                                <Button className="hero-btn-primary" onClick={() => navigate('/request-document')}>Start Request</Button>
-                                <Button className="hero-btn-outline" onClick={() => navigate('/track-status')}>Track Status</Button>
+                                <Button className="hero-btn-primary" onClick={() => navigate('/student/request-document')}>Start Request</Button>
+                                <Button className="hero-btn-outline" onClick={() => navigate('/student/track-status')}>Track Status</Button>
                             </>
-                        )}
-                        {currentUser?.role === 'staff' && (
-                            <Button className="hero-btn-primary" onClick={() => navigate('/staff-dashboard')}>Go to Staff Dashboard</Button>
-                        )}
-                        {currentUser?.role === 'admin' && (
-                            <Button className="hero-btn-primary" onClick={() => navigate('/admin-dashboard')}>Go to Admin Console</Button>
                         )}
                     </div>
 
@@ -142,7 +136,7 @@ const HomePage = ({ currentUser }) => {
 
                                 <div className="card-footer" style={{ marginTop: '0' }}>
                                     <span className="price-tag">₱ {cred.price}</span>
-                                    <Button className="request-btn-small" onClick={() => navigate('/request-document')}>Request →</Button>
+                                    <Button className="request-btn-small" onClick={() => navigate('/student/request-document')}>Request →</Button>
                                 </div>
                             </div>
                         </Card>
@@ -166,7 +160,7 @@ const HomePage = ({ currentUser }) => {
                         className="status-input"
                         placeholder="Enter Reference ID (e.g., RQ-000123)"
                     />
-                    <Button className="status-btn" onClick={() => navigate('/track-status')}>Track Now</Button>
+                    <Button className="status-btn" onClick={() => navigate('/student/track-status')}>Track Now</Button>
                 </div>
             </section>
             )}

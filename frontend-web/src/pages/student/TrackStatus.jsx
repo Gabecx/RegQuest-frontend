@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Check, Clock, FileText, Package } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Button from '../components/Button';
-import Card from '../components/Card';
-import api from '../api/axios';
-import '../styles/TrackStatus.css';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import Button from '../../components/Button';
+import Card from '../../components/Card';
+import api from '../../api/axios';
+import '../../styles/TrackStatus.css';
 
 const TrackStatus = ({ currentUser }) => {
     const [trackingId, setTrackingId] = useState('');
