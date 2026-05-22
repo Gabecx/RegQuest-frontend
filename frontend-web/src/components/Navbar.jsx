@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Bell, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
 import logo from '../assets/regquest-logo.png';
 import '../styles/Navbar.css';
 
 const Navbar = ({ currentUser }) => {
     const location = useLocation();
-    const navigate = useNavigate();
+    const { logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -82,7 +83,7 @@ const Navbar = ({ currentUser }) => {
                             </Link>
                             <button className="dropdown-item logout" onClick={() => {
                                 setIsDropdownOpen(false);
-                                navigate('/');
+                                logout();
                             }}>
                                 <LogOut size={16} />
                                 Logout
