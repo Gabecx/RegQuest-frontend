@@ -61,7 +61,11 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
 
-        navigate('/home');
+        if (userData.role === 'admin') {
+            navigate('/admin/dashboard');
+        } else {
+            navigate('/home');
+        }
     };
 
     const logout = () => {

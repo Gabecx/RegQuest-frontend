@@ -104,7 +104,7 @@ const HomePage = ({ currentUser }) => {
                             <Button className="hero-btn-primary" onClick={() => navigate('/staff-dashboard')}>Go to Staff Dashboard</Button>
                         )}
                         {currentUser?.role === 'admin' && (
-                            <Button className="hero-btn-primary" onClick={() => navigate('/admin-dashboard')}>Go to Admin Console</Button>
+                            <Button className="hero-btn-primary" onClick={() => navigate('/admin/dashboard')}>Go to Admin Console</Button>
                         )}
                     </div>
 
