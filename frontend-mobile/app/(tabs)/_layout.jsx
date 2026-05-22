@@ -1,7 +1,10 @@
 import { Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useAuth } from "../../context/AuthContext";
 
 export default function TabLayout() {
+  const { user } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -48,6 +51,7 @@ export default function TabLayout() {
         name="request"
         options={{
           title: "Request",
+          href: user?.role === 'student' ? '/(tabs)/request' : null,
           tabBarIcon: ({ focused, color, size }) => (
             <MaterialCommunityIcons
               name={focused ? "file-check" : "file-check-outline"}
@@ -62,6 +66,7 @@ export default function TabLayout() {
         name="track"
         options={{
           title: "Track",
+          href: user?.role === 'student' ? '/(tabs)/track' : null,
           tabBarIcon: ({ focused, color, size }) => (
             <MaterialCommunityIcons
               name={focused ? "file-search" : "file-search-outline"}
