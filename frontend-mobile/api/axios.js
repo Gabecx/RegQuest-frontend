@@ -31,23 +31,51 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const status = error.response?.status;
-
-        if (status === 401) {
-            try {
-                await AsyncStorage.removeItem('jwt_token');
-                await AsyncStorage.removeItem('refresh_token');
-                await AsyncStorage.removeItem('user');
-            } catch (e) {
-                console.log("Storage clear error:", e);
+        const originalRequest = error.config;
+        
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            if (originalRequest.url === '/accounts/login/' || originalRequest.url === '/accounts/login/refresh/') {
+                try {
+                    await AsyncStorage.removeItem('jwt_token');
+                    await AsyncStorage.removeItem('refresh_token');
+                    await AsyncStorage.removeItem('user');
+                } catch (e) {
+                    console.log("Storage clear error:", e);
+                }
+                if (router?.replace) {
+                    router.replace('/auth/login');
+                }
+                return Promise.reject(error);
             }
-
-            // safer navigation check
-            if (router?.replace) {
-                router.replace('/auth/login');
+            originalRequest._retry = true;
+            try {
+                const refreshToken = await AsyncStorage.getItem('refresh_token');
+                
+                if (refreshToken) {
+                    const response = await axios.post(`${baseURL}/accounts/login/refresh/`, {
+                        refresh: refreshToken
+                    });
+                    const newAccessToken = response.data.access;
+                    await AsyncStorage.setItem('jwt_token', newAccessToken);
+                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                    return api(originalRequest);
+                } else {
+                    throw new Error("No refresh token available");
+                }
+            } catch (refreshError) {
+                console.log("Token refresh failed. Session expired.");
+                try {
+                    await AsyncStorage.removeItem('jwt_token');
+                    await AsyncStorage.removeItem('refresh_token');
+                    await AsyncStorage.removeItem('user');
+                } catch (e) {
+                    console.log("Storage clear error:", e);
+                }
+                if (router?.replace) {
+                    router.replace('/auth/login');
+                }
             }
         }
-
         return Promise.reject(error);
     }
 );
