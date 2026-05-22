@@ -51,14 +51,21 @@ export const AuthProvider = ({ children }) => {
 
         const { access, refresh} = tokenResponse.data;
 
-        localStorage.setItem('jwt_token', access);
-        localStorage.setItem('refresh_token', refresh);
-
-        const userResponse = await api.get('/accounts/users/me/');
+        const userResponse = await api.get('/accounts/users/me/', {
+            headers: {
+                Authorization: `Bearer ${access}`
+            }
+        });
 
         const userData = userResponse.data;
 
+        // Only persist to storage if BOTH requests succeed
+        localStorage.setItem('jwt_token', access);
+        if (refresh) {
+            localStorage.setItem('refresh_token', refresh);
+        }
         localStorage.setItem('user', JSON.stringify(userData));
+        
         setUser(userData);
 
         navigate('/home');
