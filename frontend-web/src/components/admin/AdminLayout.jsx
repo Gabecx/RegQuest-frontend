@@ -4,16 +4,17 @@ import { useAuth } from '../../context/AuthContext';
 import { LogOut } from 'lucide-react';
 import logo from '../../assets/regquest-logo.png';
 
+const menuItems = [
+  { name: 'Dashboard', path: '/admin/dashboard' },
+  { name: 'Analytics & Graphs', path: '/admin/analytics' },
+  { name: 'Process Calendar', path: '/admin/calendar' },
+  { name: 'Role Management', path: '/admin/roles' },
+];
+
+
 const AdminLayout = ({ children, banner }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
-
-  const menuItems = [
-    { name: 'Dashboard', path: '/admin/dashboard' },
-    { name: 'Analytics & Graphs', path: '/admin/analytics' },
-    { name: 'Process Calendar', path: '/admin/calendar' },
-    { name: 'Role Management', path: '/admin/roles' },
-  ];
 
   const isActive = (path) => {
     return location.pathname === path;
@@ -38,7 +39,7 @@ const AdminLayout = ({ children, banner }) => {
               {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Admin User'}
             </p>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
-              {user?.role === 'admin' ? 'Registrar Admin' : user?.role || 'Registrar Admin'}
+              {user?.role === 'admin' || !user?.role ? 'Registrar Admin' : user?.role}
             </p>
           </div>
 

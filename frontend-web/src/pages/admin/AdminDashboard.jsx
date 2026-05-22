@@ -6,33 +6,27 @@ import RequestVolumeChart from '../../components/admin/RequestVolumeChart';
 import UserRoleManagement from '../../components/admin/UserRoleManagement';
 
 const AdminDashboard = () => {
+  const bannerStyle = {
+    backgroundImage: 'linear-gradient(to right, #060521 35%, rgba(6, 5, 33, 0.8) 55%, rgba(122, 133, 198, 0.15) 85%), url("/bg-ustp.jpg")',
+    backgroundBlendMode: 'multiply',
+  };
+
   const banner = (
-    <div 
-      style={{
-        width: '100%',
-        minHeight: '220px',
-        display: 'flex',
-        alignItems: 'center',
-        color: '#ffffff',
-        overflow: 'hidden',
-        backgroundColor: '#7A85C6',
-        backgroundImage: 'linear-gradient(to right, #060521 35%, rgba(6, 5, 33, 0.8) 55%, rgba(122, 133, 198, 0.15) 85%), url("/bg-ustp.jpg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'right center',
-        backgroundRepeat: 'no-repeat',
-        backgroundBlendMode: 'multiply'
-      }}
+    <div
+      className="w-full min-h-[220px] flex items-center text-white overflow-hidden bg-[#7A85C6] bg-cover bg-right-center bg-no-repeat"
+      style={bannerStyle}
     >
-      <div className="max-w-7xl w-full mx-auto px-8" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <h2 style={{ fontSize: '3rem', fontWeight: '800', letterSpacing: '-0.025em', lineHeight: '1.2', margin: 0 }}>
-          Registrar Admin <span style={{ color: '#FEC956' }}>Dashboard</span>
+      <div className="max-w-7xl w-full mx-auto px-8 flex flex-col gap-2">
+        <h2 className="text-5xl font-extrabold tracking-tight leading-tight m-0">
+          Registrar Admin <span className="text-[#FEC956]">Dashboard</span>
         </h2>
-        <p style={{ fontSize: '16px', fontWeight: '600', color: '#C7D2FE', margin: 0 }}>
+        <p className="text-base font-semibold text-indigo-200 m-0">
           System Analytics & User Management
         </p>
       </div>
     </div>
   );
+
 
   return (
     <AdminLayout banner={banner}>

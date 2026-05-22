@@ -97,8 +97,8 @@ const RequestVolumeChart = () => {
 
       {/* Legends */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-        {legendItems.map((item, idx) => (
-          <div key={idx} className="flex items-center space-x-1.5">
+        {legendItems.map((item) => (
+          <div key={item.name} className="flex items-center space-x-1.5">
             {item.isLine ? (
               <div className="flex items-center space-x-1">
                 <span className="w-5 h-[2px] bg-gray-400 inline-block"></span>
@@ -122,10 +122,10 @@ const RequestVolumeChart = () => {
           className="w-full min-w-[800px] h-auto max-h-[280px]"
         >
           {/* Grid lines & Y Axis labels */}
-          {yLevels.map((val, idx) => {
+          {yLevels.map((val) => {
             const y = getY(val);
             return (
-              <g key={idx}>
+              <g key={val}>
                 {/* Grid Line */}
                 <line 
                   x1={paddingLeft} 
@@ -149,8 +149,8 @@ const RequestVolumeChart = () => {
           })}
 
           {/* Stacked Bars & X axis labels */}
-          {data.map((d, i) => {
-            const x = getX(i);
+          {data.map((d) => {
+            const x = getX(data.indexOf(d));
             const barWidth = 32;
             let currentY = getY(0);
 
@@ -158,7 +158,7 @@ const RequestVolumeChart = () => {
             const scale = timeframe === 'daily' ? 1.5 : 0.8;
 
             return (
-              <g key={i}>
+              <g key={d.day}>
                 {/* Draw stacked bars */}
                 {d.bars.map((heightVal, barIdx) => {
                   if (heightVal === 0) return null;
@@ -207,11 +207,12 @@ const RequestVolumeChart = () => {
           />
 
           {/* Total Line Dots */}
-          {data.map((d, i) => {
+          {data.map((d) => {
+            const i = data.indexOf(d);
             const x = getX(i);
             const y = getY(timeframe === 'daily' ? d.lineVal : (d.lineVal / 100) * 45);
             return (
-              <g key={i} className="group cursor-pointer">
+              <g key={d.day} className="group cursor-pointer">
                 <circle
                   cx={x}
                   cy={y}

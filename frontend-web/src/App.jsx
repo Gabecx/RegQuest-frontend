@@ -16,6 +16,8 @@ import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminRoles from './pages/admin/AdminRoles';
 
+const getRedirectPath = (user) => user?.role === 'admin' ? '/admin/dashboard' : '/home';
+
 const AppContent = () => {
   const { user } = useAuth();
   
@@ -24,22 +26,10 @@ const AppContent = () => {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={
-          user ? (
-            <Navigate to={user.role === 'admin' ? "/admin/dashboard" : "/home"} replace />
-          ) : (
-            <LoginPage />
-          )
+          user ? <Navigate to={getRedirectPath(user)} replace /> : <LoginPage />
         } />
         <Route path="/register" element={
-          user ? (
-            user.role === 'admin' ? (
-              <Navigate to="/admin/dashboard" replace />
-            ) : (
-              <Navigate to="/home" replace />
-            )
-          ) : (
-            <RegisterPage />
-          )
+          user ? <Navigate to={getRedirectPath(user)} replace /> : <RegisterPage />
         } />
         <Route path="/success" element={<SuccessPage />} />
                

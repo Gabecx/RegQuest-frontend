@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Shield } from 'lucide-react';
+import api from '../../api/axios';
 
 const UserRoleManagement = () => {
   const [users, setUsers] = useState([
@@ -26,30 +27,44 @@ const UserRoleManagement = () => {
     },
   ]);
 
-  const handleDeactivateToggle = (id) => {
+  const handleDeactivateToggle = async (id) => {
+    const target = users.find(u => u.id === id);
+    const newStatus = target?.status === 'Active' ? 'Inactive' : 'Active';
+
     setUsers(prevUsers =>
       prevUsers.map(user => {
         if (user.id === id) {
-          return {
-            ...user,
-            status: user.status === 'Active' ? 'Inactive' : 'Active'
-          };
+          return { ...user, status: newStatus };
         }
         return user;
       })
     );
+
+    try {
+      await api.patch(`/accounts/users/${id}/`, { status: newStatus });
+    } catch (err) {
+      console.error('Failed to persist status change:', err);
+    }
   };
 
-  const handleChangeRole = (id) => {
+  const handleChangeRole = async (id) => {
+    const target = users.find(u => u.id === id);
+    const newRole = target?.role === 'Administrator' ? 'Staff' : 'Administrator';
+
     setUsers(prevUsers =>
       prevUsers.map(user => {
         if (user.id === id) {
-          const newRole = user.role === 'Administrator' ? 'Staff' : 'Administrator';
           return { ...user, role: newRole };
         }
         return user;
       })
     );
+
+    try {
+      await api.patch(`/accounts/users/${id}/`, { role: newRole });
+    } catch (err) {
+      console.error('Failed to persist role change:', err);
+    }
   };
 
   return (
