@@ -99,12 +99,24 @@ const HomePage = ({ currentUser }) => {
                     </p>
 
                     <div className="hero-buttons">
-                        <Button className="hero-btn-primary" onClick={() => navigate('/request-document')}>Start Request</Button>
-                        <Button className="hero-btn-outline" onClick={() => navigate('/track-status')}>Track Status</Button>
+                        {currentUser?.role === 'student' && (
+                            <>
+                                <Button className="hero-btn-primary" onClick={() => navigate('/request-document')}>Start Request</Button>
+                                <Button className="hero-btn-outline" onClick={() => navigate('/track-status')}>Track Status</Button>
+                            </>
+                        )}
+                        {currentUser?.role === 'staff' && (
+                            <Button className="hero-btn-primary" onClick={() => navigate('/staff-dashboard')}>Go to Staff Dashboard</Button>
+                        )}
+                        {currentUser?.role === 'admin' && (
+                            <Button className="hero-btn-primary" onClick={() => navigate('/admin-dashboard')}>Go to Admin Console</Button>
+                        )}
                     </div>
+
                 </div>
             </header>
-
+            
+            {currentUser?.role === 'student' && (
             <section className="credentials-section">
                 <h2 className="section-title">Available Credentials</h2>
 
@@ -146,7 +158,9 @@ const HomePage = ({ currentUser }) => {
                     ))}
                 </div>
             </section>
+            )}
 
+            {currentUser?.role === 'student' && (
             <section className="status-section">
                 <h2 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '1rem' }}>
                     Check Your Request Status
@@ -167,6 +181,7 @@ const HomePage = ({ currentUser }) => {
                     <Button className="status-btn" onClick={handleTrack}>Track Now</Button>
                 </div>
             </section>
+            )}
 
             <section className="features-section">
                 <h2 className="section-title" style={{ textAlign: 'center', color: '#00007F' }}>

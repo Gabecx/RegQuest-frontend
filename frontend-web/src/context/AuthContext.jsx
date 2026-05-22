@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('refresh_token', refresh);
 
         localStorage.setItem('user', JSON.stringify(userData));
+        
         setUser(userData);
 
         navigate('/home');

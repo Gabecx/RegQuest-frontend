@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import ScrollToTop from './components/ScrollToTop';
 import LoginPage from './pages/LoginPage';
@@ -10,34 +10,42 @@ import RequestDocument from './pages/RequestDocument';
 import TrackStatus from './pages/TrackStatus';
 import ProfilePage from './pages/ProfilePage';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
   const { user } = useAuth();
   
-  // mockup fallback
-  const currentUser = user || {
-    name: "System User",
-    first_name: "User",
-    last_name: "",
-    email: "user@system.com",
-    role: "Student",
-    studentId: "N/A",
-    year_level: "N/A",
-    program: "N/A",
-    notifications: 0
-  };
-
   return (
     <>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={user ? <Navigate to="/home" replace /> : <LoginPage />} />
+        <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
         <Route path="/success" element={<SuccessPage />} />
-        <Route path="/home" element={<HomePage currentUser={currentUser} />} />
-        <Route path="/request-document" element={<RequestDocument currentUser={currentUser} />} />
-        <Route path="/track-status" element={<TrackStatus currentUser={currentUser} />} />
-        <Route path="/profile" element={<ProfilePage currentUser={currentUser} />} />
+               
+        <Route path="/home" element={
+          <ProtectedRoute>
+          <HomePage currentUser={user} />
+          </ProtectedRoute>
+        } />
+         
+        <Route path="/request-document" element={
+            <ProtectedRoute allowedRoles={['student']}>
+                <RequestDocument currentUser={user} />
+            </ProtectedRoute>
+        } />
+        
+        <Route path="/track-status" element={
+            <ProtectedRoute allowedRoles={['student']}>
+                <TrackStatus currentUser={user} />
+            </ProtectedRoute>
+        } />
+        
+        <Route path="/profile" element={
+            <ProtectedRoute>
+                <ProfilePage currentUser={user} />
+            </ProtectedRoute>
+        } />
       </Routes>
     </>
   );
