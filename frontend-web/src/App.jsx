@@ -25,11 +25,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={
           user ? (
-            user.role === 'admin' ? (
-              <Navigate to="/admin/dashboard" replace />
-            ) : (
-              <Navigate to="/home" replace />
-            )
+            <Navigate to={user.role === 'admin' ? "/admin/dashboard" : "/home"} replace />
           ) : (
             <LoginPage />
           )
