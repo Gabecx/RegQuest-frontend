@@ -53,8 +53,19 @@ const Navbar = ({ currentUser }) => {
 
             <div className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
                 <Link to="/home" className={isActive('/home')} onClick={() => setIsMenuOpen(false)}>Home</Link>
-                <Link to="/request-document" className={isActive('/request-document')} onClick={() => setIsMenuOpen(false)}>Request Document</Link>
-                <Link to="/track-status" className={isActive('/track-status')} onClick={() => setIsMenuOpen(false)}>Track Status</Link>
+                
+                {user?.role === 'student' && (
+                    <>
+                        <Link to="/request-document" className={isActive('/request-document')} onClick={() => setIsMenuOpen(false)}>Request Document</Link>
+                        <Link to="/track-status" className={isActive('/track-status')} onClick={() => setIsMenuOpen(false)}>Track Status</Link>
+                    </>
+                )}
+                 {user?.role === 'staff' && (
+                    <Link to="/staff-dashboard" className={isActive('/staff-dashboard')} onClick={() => setIsMenuOpen(false)}>Process Requests</Link>
+                )}
+                {user?.role === 'admin' && (
+                    <Link to="/admin-dashboard" className={isActive('/admin-dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
+                )}
             </div>
 
             <div className="user-section">
