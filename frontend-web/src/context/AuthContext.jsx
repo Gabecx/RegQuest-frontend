@@ -58,7 +58,11 @@ export const AuthProvider = ({ children }) => {
         
         setUser(userData);
 
-        navigate('/home');
+        if (userData.role === 'admin') {
+            navigate('/admin/dashboard');
+        } else {
+            navigate('/home');
+        }
     };
 
     const logout = () => {

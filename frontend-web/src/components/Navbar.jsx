@@ -64,7 +64,7 @@ const Navbar = ({ currentUser }) => {
                     <Link to="/staff-dashboard" className={isActive('/staff-dashboard')} onClick={() => setIsMenuOpen(false)}>Process Requests</Link>
                 )}
                 {user?.role === 'admin' && (
-                    <Link to="/admin-dashboard" className={isActive('/admin-dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
+                    <Link to="/admin/dashboard" className={isActive('/admin/dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
                 )}
             </div>
 

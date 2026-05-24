@@ -15,6 +15,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-y: scroll;
+}
+
 body {
   overflow-x: hidden;
   margin: 0;
