@@ -150,11 +150,10 @@ const RequestDocument = ({ currentUser }) => {
             const summary = selected.map(doc => `${doc.name} x${getCopies(doc.id)}`).join('\n');
             const maxDays = Math.max(...selected.map(doc => doc.processing_time_days || 3), 3);
 
-            const response = await api.post("/requests/", {
-                documents_summary: summary,
-                purpose: purpose,
-                processing_time_days: maxDays,
-                total_price: calculateTotal().toFixed(2)
+            const response = await api.post('/requests/', {
+                document_type: selectedDocs[0],
+                quantity: copies[selectedDocs[0]] || 1,
+                total_price: calculateTotal().toFixed(2),
             });
 
             console.log("Submission successful:", response.data);

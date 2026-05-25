@@ -60,8 +60,11 @@ const Navbar = ({ currentUser }) => {
                         <Link to="/track-status" className={isActive('/track-status')} onClick={() => setIsMenuOpen(false)}>Track Status</Link>
                     </>
                 )}
-                 {user?.role === 'staff' && (
-                    <Link to="/staff-dashboard" className={isActive('/staff-dashboard')} onClick={() => setIsMenuOpen(false)}>Process Requests</Link>
+                {user?.role === 'staff' && (
+                    <>
+                        <Link to="/staff/dashboard" className={isActive('/staff/dashboard')} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                        <Link to="/staff/process-requests" className={isActive('/staff/process-requests')} onClick={() => setIsMenuOpen(false)}>Requests</Link>
+                    </>
                 )}
                 {user?.role === 'admin' && (
                     <Link to="/admin/dashboard" className={isActive('/admin/dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
