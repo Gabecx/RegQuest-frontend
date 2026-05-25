@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1/';
+
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api/v1/' || 'https://regquest-backend-2.onrender.com/api/v1',
+    baseURL,
 });
 
 api.interceptors.request.use(
@@ -34,9 +36,9 @@ api.interceptors.response.use(
 
            if (refreshToken) {
                 try {
-                    const response = await axios.post('http://localhost:8000/api/v1/accounts/login/refresh/', {
+                    const response = await axios.post('/accounts/login/refresh/', {
                         refresh: refreshToken
-                    });
+                    }, { baseURL });
 
                     const newAccessToken = response.data.access;
                     localStorage.setItem("jwt_token", newAccessToken);
