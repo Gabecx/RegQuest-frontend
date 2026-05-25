@@ -69,6 +69,14 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
+            const refreshToken = await AsyncStorage.getItem('refresh_token');
+            if (refreshToken) {
+                try {
+                    await api.post('/accounts/logout/', { refresh: refreshToken });
+                } catch (e) {
+                    console.log("Backend logout error:", e.message);
+                }
+            }
             await AsyncStorage.removeItem('jwt_token');
             await AsyncStorage.removeItem('refresh_token');
             await AsyncStorage.removeItem('user');
