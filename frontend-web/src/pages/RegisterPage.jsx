@@ -52,7 +52,19 @@ const RegisterPage = () => {
       navigate('/success', { state: { firstName, lastName } });
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(err.response.data.message);
+        if (err.response.data.message) {
+          setError(err.response.data.message);
+        } else {
+          const errorData = err.response.data;
+          const errorMessages = Object.keys(errorData)
+            .map(key => {
+              const val = errorData[key];
+              const msg = Array.isArray(val) ? val[0] : val;
+              return `${key.replace('_', ' ')}: ${msg}`;
+            })
+            .join('\\n');
+          setError(errorMessages || 'An error occurred during registration.');
+        }
       } else {
         setError('An error occurred during registration.');
       }
