@@ -14,6 +14,7 @@ const RegisterPage = () => {
   const [studentId, setStudentId] = useState('');
   const [program, setProgram] = useState('');
   const [yearLevel, setYearLevel] = useState('');
+  const [idImage, setIdImage] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -37,15 +38,24 @@ const RegisterPage = () => {
     }
 
     try {
-      const response = await api.post('/accounts/register/', {
-        email,
-        password,
-        first_name: firstName,
-        last_name: lastName,
-        role: "student",
-        univ_id: studentId,
-        course: program,
-        year_level: yearLevel ? parseInt(yearLevel) : 1
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('first_name', firstName);
+      formData.append('last_name', lastName);
+      formData.append('role', 'student');
+      formData.append('univ_id', studentId);
+      formData.append('course', program);
+      formData.append('year_level', yearLevel ? parseInt(yearLevel) : 1);
+      
+      if (idImage) {
+        formData.append('id_image', idImage);
+      }
+
+      const response = await api.post('/accounts/register/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       console.log('Registration successful', response.data);
@@ -228,8 +238,14 @@ const RegisterPage = () => {
                   <label className="input-label">Upload School ID</label>
                   <label className="file-upload-label">
                     <Upload className="h-8 w-5" />
-                    Upload File (.png, .jpg, .jpeg)
-                    <input type="file" className="hidden" style={{ display: 'none' }} />
+                    {idImage ? idImage.name : "Upload File (.png, .jpg, .jpeg)"}
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      style={{ display: 'none' }} 
+                      accept=".png, .jpg, .jpeg"
+                      onChange={(e) => setIdImage(e.target.files[0])}
+                    />
                   </label>
                 </div>
 
