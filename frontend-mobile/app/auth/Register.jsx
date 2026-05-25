@@ -19,6 +19,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { COLORS } from "../../constants/theme";
 import DropDownPicker from 'react-native-dropdown-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Register() {
   const router = useRouter();
@@ -40,6 +41,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [idImage, setIdImage] = useState(null);
   
   const [error, setError] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
@@ -51,6 +53,18 @@ export default function Register() {
       return;
     }
     setStep(2);
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setIdImage(result.assets[0]);
+    }
   };
 
   const handleRegister = async () => {
@@ -68,15 +82,28 @@ export default function Register() {
     setIsRegistering(true);
 
     try {
-      await api.post('/accounts/register/', {
-        first_name: firstName || 'Unknown',
-        last_name: lastName || 'Unknown',
-        email,
-        password,
-        role: 'student',
-        univ_id: studentId,
-        course: program,
-        year_level: parseInt(yearLevel) || 1
+      const formData = new FormData();
+      formData.append("first_name", firstName || 'Unknown');
+      formData.append("last_name", lastName || 'Unknown');
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("role", "student");
+      formData.append("univ_id", studentId);
+      formData.append("course", program);
+      formData.append("year_level", parseInt(yearLevel) || 1);
+
+      if (idImage) {
+        formData.append("id_image", {
+          uri: idImage.uri,
+          name: idImage.fileName || 'id_image.jpg',
+          type: idImage.mimeType || 'image/jpeg'
+        });
+      }
+
+      await api.post('/accounts/register/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
 
       setSuccess(true);
@@ -266,9 +293,9 @@ export default function Register() {
                       
                       <View>
                         <Text style={{ fontSize: 14, fontWeight: '700', color: COLORS.darkgray, marginBottom: 8 }}>Upload School ID</Text>
-                        <TouchableOpacity style={styles.uploadWrapper}>
+                        <TouchableOpacity style={styles.uploadWrapper} onPress={pickImage}>
                           <Upload size={20} color="#9ca3af" />
-                          <Text style={styles.uploadText}>Upload File (.png, .jpg, .jpeg)</Text>
+                          <Text style={styles.uploadText}>{idImage ? 'Image selected' : 'Upload File (.png, .jpg, .jpeg)'}</Text>
                         </TouchableOpacity>
                       </View>
 
