@@ -1,5 +1,6 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL;
@@ -17,7 +18,7 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         try {
-            const token = await AsyncStorage.getItem("jwt_token");
+            const token = await SecureStore.getItemAsync("jwt_token");
 
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
@@ -40,8 +41,8 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             if (originalRequest.url === '/accounts/login/' || originalRequest.url === '/accounts/login/refresh/') {
                 try {
-                    await AsyncStorage.removeItem('jwt_token');
-                    await AsyncStorage.removeItem('refresh_token');
+                    await SecureStore.deleteItemAsync('jwt_token');
+                    await SecureStore.deleteItemAsync('refresh_token');
                     await AsyncStorage.removeItem('user');
                 } catch (e) {
                     console.log("Storage clear error:", e);
@@ -53,14 +54,14 @@ api.interceptors.response.use(
             }
             originalRequest._retry = true;
             try {
-                const refreshToken = await AsyncStorage.getItem('refresh_token');
+                const refreshToken = await SecureStore.getItemAsync('refresh_token');
                 
                 if (refreshToken) {
                     const response = await axios.post(`${baseURL}/accounts/login/refresh/`, {
                         refresh: refreshToken
                     });
                     const newAccessToken = response.data.access;
-                    await AsyncStorage.setItem('jwt_token', newAccessToken);
+                    await SecureStore.setItemAsync('jwt_token', newAccessToken);
                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                     return api(originalRequest);
                 } else {
@@ -69,8 +70,8 @@ api.interceptors.response.use(
             } catch (refreshError) {
                 console.log("Token refresh failed. Session expired.");
                 try {
-                    await AsyncStorage.removeItem('jwt_token');
-                    await AsyncStorage.removeItem('refresh_token');
+                    await SecureStore.deleteItemAsync('jwt_token');
+                    await SecureStore.deleteItemAsync('refresh_token');
                     await AsyncStorage.removeItem('user');
                 } catch (e) {
                     console.log("Storage clear error:", e);
