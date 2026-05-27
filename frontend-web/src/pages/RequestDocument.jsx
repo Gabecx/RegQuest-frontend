@@ -146,8 +146,6 @@ const RequestDocument = ({ currentUser }) => {
             setSubmitting(true);
 
             const selected = documents.filter(doc => selectedDocs.includes(doc.id));
-            // const summary = selected.map(doc => `${doc.name} x${getCopies(doc.id)}`).join('\n'); // Not used
-            // const maxDays = Math.max(...selected.map(doc => doc.processing_time_days || 3), 3); // Not used
             const summary = selected.map(doc => `${doc.name} x${getCopies(doc.id)}`).join('\n');
             const maxDays = Math.max(...selected.map(doc => doc.processing_time_days || 3), 3);
 

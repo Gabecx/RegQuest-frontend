@@ -48,7 +48,7 @@ export default function CalendarPreview({ requests = [], loading, error }) {
                     </div>
                 </div>
 
-                <div className="calendar-grid weekday-header">
+                 <div className="calendar-grid weekday-header">
                     {WEEKDAYS.map((day) => (
                         <div key={day}>
                             {day}

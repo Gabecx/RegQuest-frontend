@@ -66,6 +66,22 @@ export default function Calendar() {
             week
         );
     }
+    const groupedRequests = {};
+    requests.forEach((req) => {
+        if (!req.est_release_date) return;
+        const releaseDate = new Date(req.est_release_date);
+        if (isNaN(releaseDate.getTime())) return;
+        if (
+            releaseDate.getMonth() === currentMonth &&
+            releaseDate.getFullYear() === currentYear
+        ) {
+            const d = releaseDate.getDate();
+            if (!groupedRequests[d]) {
+                groupedRequests[d] = [];
+            }
+            groupedRequests[d].push(req);
+        }
+    });
     return (
 
         <div className="calendar-page">
@@ -124,18 +140,7 @@ export default function Calendar() {
                                         
                                         {day !== "" &&
                                             (() => {
-                                                const batchRequests =requests.filter((req) => {
-
-                                                            if (!req.est_release_date)
-                                                                return false;
-                                                            const releaseDate =new Date(req.est_release_date);
-                                                            return (
-                                                                releaseDate.getDate() ===Number(day) &&
-                                                                releaseDate.getMonth() ===currentMonth &&
-                                                                releaseDate.getFullYear() ===currentYear
-                                                            );
-                                                        }
-                                                    );
+                                                const batchRequests = groupedRequests[day] || [];
                                                 if (batchRequests.length ===0)
                                                     return null;
                                                 const completed =
