@@ -26,6 +26,7 @@ export default function RequestProcess() {
     }, [selectedRequest]);
 
     const handleUpdate = async () => {
+        if (!selectedRequest) return;
         setIsUpdating(true);
         setUpdateError(null);
         try {
