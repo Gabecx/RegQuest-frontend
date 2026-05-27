@@ -21,6 +21,7 @@ export default function RequestPreview({ requests = [], loading, error, refetchR
     }, [selectedRequest]);
 
     const handleUpdate = async () => {
+        if (!selectedRequest) return;
         setIsUpdating(true);
         setUpdateError(null);
         try {
