@@ -1,0 +1,763 @@
+.roles-main {
+  padding: 40px;
+  background-color: #f6f8fc;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── STAT CARDS ────────────────────────────────────── */
+.roles-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 35px;
+}
+
+.roles-stat-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 14px rgba(160, 170, 190, 0.12);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.roles-stat-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+}
+
+.roles-stat-card h1 {
+  font-size: 44px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+.gray { border-left: 6px solid #8e8e8e; }
+.green { border-left: 6px solid #41d98a; }
+.blue { border-left: 6px solid #5a73f3; }
+.orange { border-left: 6px solid #ff9f43; }
+
+/* ── LAYOUT CARDS GENERAL ───────────────────────────── */
+.roles-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(160, 170, 190, 0.15);
+  margin-bottom: 35px;
+  overflow: hidden;
+}
+
+/* ── PENDING STUDENTS (ORANGE SECTION) ──────────────── */
+.pending-students-card {
+  background-color: #fff9f1;
+  border: 1.5px solid #ffddb3;
+  padding: 30px;
+}
+
+.section-title-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.section-title-inline h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.orange-text h2 {
+  color: #d97706;
+}
+
+.pending-students-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-row {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.student-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 4px 0;
+}
+
+.student-email {
+  font-size: 14px;
+  color: #666666;
+  margin: 0 0 4px 0;
+}
+
+.student-date {
+  font-size: 11px;
+  color: #999999;
+  margin: 0;
+}
+
+.student-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── TABLES STRUCTURING ────────────────────────────── */
+.structured-section {
+  background: #ffffff;
+}
+
+.table-header {
+  padding: 20px 24px;
+}
+
+.yellow-header {
+  background-color: #fef08a;
+  border-bottom: 1px solid #fef08a;
+}
+
+.yellow-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.roles-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.roles-table th {
+  background-color: #ffffff;
+  color: #222222;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 16px 24px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.roles-table td {
+  padding: 20px 24px;
+  border-bottom: 1px solid #efefef;
+  font-size: 14.5px;
+  color: #333333;
+  vertical-align: middle;
+}
+
+.roles-table tr:last-child td {
+  border-bottom: none;
+}
+
+.font-semibold {
+  font-weight: 600;
+  color: #111111;
+}
+
+.text-muted {
+  color: #666666;
+}
+
+.action-buttons-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ── SECTION TITLE WITH SUBTITLES ─────────────────── */
+.section-title-with-subtitle {
+  padding: 24px;
+}
+
+.title-icon-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.title-icon-wrapper h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.title-icon-wrapper p {
+  font-size: 13.5px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Color adjustments for specific background containers */
+.blue-bg-section { background-color: #eef2ff; }
+.blue-bg-section .title-icon-wrapper h2 { color: #1e3a8a; }
+.blue-bg-section .title-icon-wrapper p { color: #4338ca; }
+
+.green-bg-section { background-color: #f0fdf4; }
+.green-bg-section .title-icon-wrapper h2 { color: #14532d; }
+.green-bg-section .title-icon-wrapper p { color: #15803d; }
+
+.white-table-container {
+  background-color: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* ── BADGES ────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.staff-badge {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+}
+
+.admin-badge {
+  background-color: #f3e8ff;
+  color: #a855f7;
+}
+
+.status-badge {
+  min-width: 65px;
+}
+
+.active-badge {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.inactive-badge {
+  background-color: #e5e7eb;
+  color: #6b7280;
+}
+
+/* ── ADD USER INTERFACE SECTIONS ───────────────────── */
+.add-user-section-container {
+  background-color: #ffffff;
+  padding: 0;
+}
+
+.add-user-trigger-view {
+  padding: 24px;
+}
+
+.btn-add-new-trigger {
+  background-color: #0b1a8a;
+  color: #ffffff;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-user-form-expanded {
+  padding: 30px;
+}
+
+.add-user-form-expanded h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: #111111;
+}
+
+.add-user-inputs-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.form-control, .form-select {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #dcdfe6;
+  border-radius: 8px;
+  font-size: 14.5px;
+  color: #333333;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.form-control::placeholder {
+  color: #999999;
+}
+
+.add-user-actions-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-add-submit {
+  background-color: #0b1a8a;
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-cancel-submit {
+  background-color: #ffffff;
+  color: #111111;
+  border: 1.5px solid #bdc3c7;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ── ACTION BUTTON VARIATIONS ──────────────────────── */
+.btn-view {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-approve-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-reject-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-change-role {
+  background-color: #0b1a8a;
+  color: #ffffff;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-deactivate {
+  background-color: #ffffff;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-view-update {
+  background-color: #0b1a8a;
+  color: #ffffff;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ── PERFECTLY SCALED MODAL COMPONENT STYLES ───────── */
+.modal-backdrop-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(50, 65, 90, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.student-info-modal-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 840px; /* Gipadakuan gikan sa 720px para mas hayahay ang layout */
+  border-radius: 18px;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, 0.2);
+  padding: 36px 44px; /* Mas dako nga spacing para mas premium tan-awon */
+  animation: modalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.student-info-modal-card h1 {
+  font-size: 28px; /* Mas dako nga heading para klaro dayon */
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 26px 0;
+}
+
+.modal-grid-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 40px; /* Mas lapad nga tunga nga space */
+  row-gap: 20px;
+  margin-bottom: 36px;
+}
+
+.modal-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-field-group label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.modal-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  height: 46px; /* Mas bagsubagsal gamay nga inputs para nindot i-type */
+  box-sizing: border-box;
+}
+
+.modal-input-container input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #1e293b;
+  outline: none;
+}
+
+/* School ID Image Frame proportions */
+.school-id-preview-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  height: 150px; /* Sakto na kaayo nga gidak-on para sa ID photo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.id-card-img {
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Modal Bottom Toolbar Actions */
+.modal-footer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 26px;
+}
+
+.btn-modal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.btn-modal-back:hover {
+  color: #0f172a;
+}
+
+.modal-decision-buttons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-modal-approve {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #bbf7d0;
+  border: none;
+  color: #166534;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 11px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-modal-reject {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #fecaca;
+  border: none;
+  color: #991b1b;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 11px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ── APPROVE ROLE ASSIGNMENT MODAL STYLES ───────────── */
+.role-assignment-modal-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 520px; /* Aligned neatly with the compact mockup scale */
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
+  padding: 35px;
+  box-sizing: border-box;
+  animation: modalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-assignment-modal-card h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 20px 0;
+}
+
+/* Gray user overview summary layout block */
+.role-modal-user-details-box {
+  background-color: #f8fafc;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  border: 1px solid #f1f5f9;
+}
+
+.role-details-caption {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.role-modal-user-details-box h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 4px 0;
+}
+
+.role-modal-user-details-box p {
+  font-size: 14px;
+  color: #475569;
+  margin: 0 0 12px 0;
+}
+
+.role-modal-current-badge-info {
+  font-size: 13.5px;
+  color: #1e293b;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+}
+
+.role-selection-prompt-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 14px 0;
+}
+
+/* Option list container fields */
+.role-options-vertical-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.role-selection-option-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.role-selection-option-card:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+/* Blue outline trigger when chosen active */
+.role-card-active-blue {
+  border-color: #3b82f6 !important;
+  background-color: #eff6ff !important;
+}
+
+.role-card-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blue-icon-bg { background-color: #dbeafe; }
+.staff-icon-bg { background-color: #dbeafe; }
+
+.role-card-meta-text h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 2px 0;
+}
+
+.role-card-meta-text p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Modal Bottom Toolbar Actions matching layout colors */
+.role-modal-actions-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.btn-role-cancel {
+  background-color: #f1f5f9;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+
+.btn-role-cancel:hover {
+  background-color: #e2e8f0;
+}
+
+.btn-role-save {
+  background-color: #1d4ed8;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+
+.btn-role-save:hover {
+  background-color: #1e40af;
+}
+
+/* Update View / Save action alignment */
+.btn-modal-only-save {
+  background-color: #00009c; /* Pure dark blue matching update mockup button color */
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  border: none;
+  padding: 10px 42px; /* Wide design footprint */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-modal-only-save:hover {
+  background-color: #000076;
+}
+
+/* Removes outline markers for clean appearance when fields are editable */
+.modal-input-container input:focus {
+  outline: none;
+}

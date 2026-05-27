@@ -8,7 +8,8 @@ const menuItems = [
   { name: 'Dashboard', path: '/admin/dashboard' },
   { name: 'Analytics & Graphs', path: '/admin/analytics' },
   { name: 'Process Calendar', path: '/admin/calendar' },
-  { name: 'Role Management', path: '/admin/roles' },
+  { name: 'Accounts & Role Management', path: '/admin/roles' },
+  { name: 'Request Management', path: '/admin/requests' },
 ];
 
 
