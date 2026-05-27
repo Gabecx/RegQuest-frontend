@@ -1,6 +1,10 @@
 import React, {useEffect,useState} from "react";
-import {CalendarDays} from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import StaffHeader from "../../components/staff/StaffHeader";
+import StaffTabs from "../../components/staff/StaffTabs";
+import { WEEKDAYS } from "../../utils/constants";
+import "../../styles/Calendar.css";
 import api from "../../api/axios";
 import "../../styles/Calendar.css";
 
@@ -65,31 +69,9 @@ export default function Calendar() {
     return (
 
         <div className="calendar-page">
+            <StaffHeader />
+            <StaffTabs />
 
-            <nav className="calendar-navbar">
-                <div>
-                    <h1 className="calendar-logo">
-                        RegQuest Staff
-                    </h1>
-                    <span className="calendar-subtitle">
-                        Registrar Portal
-                    </span>
-                </div>
-                <div className="calendar-nav-right">
-                    <span className="calendar-user">
-                        {user?.first_name || "Staff"}
-                    </span>
-                    <button className="logout-btn" onClick={logout}>Log out</button>
-                </div>
-            </nav>
-
-            <div className="top-tabs">
-                <a href="/staff/dashboard" className="tab">Dashboard</a>
-                <a href="/staff/process-requests"  className="tab">Process Request</a>
-                <a href="/staff/processing-calendar" className="tab active">Processing Calendar</a>
-                <a href="/staff/analytics" className="tab">Analytics</a>
-                <a href="/staff/history" className="tab">History</a>
-            </div>
             <section className="calendar-card-main">
                 <div className="calendar-header">
                     <div className="calendar-icon">
@@ -221,4 +203,4 @@ export default function Calendar() {
             </section>
         </div>
     );
-}
+}   

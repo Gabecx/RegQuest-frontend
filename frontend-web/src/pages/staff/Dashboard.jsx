@@ -1,64 +1,56 @@
 import React, { useEffect, useState } from "react";
 import {FileText} from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import api from "../../api/axios";
-import CalendarPreview from "../../components/CalendarPreview";
-import RequestPreview from "../../components/RequestPreview";
+import StaffHeader from "../../components/staff/StaffHeader";
+import StaffTabs from "../../components/staff/StaffTabs";
+import CalendarPreview from "../../components/staff/CalendarPreview";
+import RequestPreview from "../../components/staff/RequestPreview";
+import { useRequests } from "../../hooks/useRequests";
 import "../../styles/StaffDashboard.css";
 
 export default function StaffDashboard() {
-  const { logout, user } = useAuth();
-  const [requests, setRequests] = useState([]);
+  const { requests, loading, error, refetchRequests } = useRequests();
+
   const totalRequests = requests.length;
   const pendingRequests = requests.filter((req) => req.status === "pending").length;
   const processingRequests = requests.filter((req) => req.status === "processing").length;
-
   const completedRequests = requests.filter(
     (req) =>
       req.status === "completed" ||
       req.status === "approved"
   ).length;
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
+  const torCount = requests.filter((req) => req.document_name === "Transcript of Records").length;
+  const hdCount = requests.filter((req) => req.document_name === "Honorable Dismissal").length;
+  const evalCount = requests.filter((req) => req.document_name === "Evaluation").length;
+  const oeCount = requests.filter((req) => req.document_name === "Officially Enrolled").length;
 
-  const fetchRequests = async () => {
-    try {
-      const response = await api.get("/requests/");
-      setRequests(response.data);
-    } catch (error) {
-      console.error("Failed to fetch requests", error);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="staff-dashboard">
+        <StaffHeader />
+        <StaffTabs />
+        <p style={{ textAlign: 'center', marginTop: '2rem' }}>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="staff-dashboard">
+        <StaffHeader />
+        <StaffTabs />
+        <p style={{ textAlign: 'center', marginTop: '2rem', color: 'red' }}>Error: {error}</p>
+      </div>
+    );
+  }
+
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   return (
     <div className="staff-dashboard">
-
-            <nav className="staff-navbar">
-                <div>
-                    <h1 className="staff-logo">
-                        RegQuest Staff
-                    </h1>
-                    <span className="staff-subtitle">
-                        Registrar Portal
-                    </span>
-                </div>
-                <div className="staff-nav-right">
-                    <span className="staff-user">
-                        {user?.first_name || "Staff"}
-                    </span>
-                    <button className="logout-btn" onClick={logout}>Log out</button>
-                </div>
-            </nav>
-
-      <div className="top-tabs">
-        <a href="/staff/dashboard" className="tab active">Dashboard</a>
-        <a href="/staff/process-requests"  className="tab">Process Request</a>
-        <a href="/staff/processing-calendar" className="tab">Processing Calendar</a>
-        <a href="/staff/analytics" className="tab">Analytics</a>
-        <a href="/staff/history" className="tab">History</a>
-      </div>
+      <StaffHeader />
+      <StaffTabs />
 
       <header className="staff-header">
         <h2>
@@ -73,11 +65,11 @@ export default function StaffDashboard() {
         <div className="documents-overview">
           <div className="documents-header">
             <div className="document-icon">
-              <FileText size={48} />
+              <FileText size={48} /> 
             </div>
             <div>
               <p className="documents-date">
-                Monday, May 7, 2026
+                {formattedDate}
               </p>
               <h2>
                 {totalRequests} Documents
@@ -94,7 +86,7 @@ export default function StaffDashboard() {
                 <p>Transcript of Records</p>
                 <span className="priority high">High</span>
               </div>
-              <h2>3</h2>
+              <h2>{torCount}</h2>
               <small>copies</small>
             </div>
             <div className="document-mini-card">
@@ -102,7 +94,7 @@ export default function StaffDashboard() {
                 <p>Honorable Dismissal</p>
                 <span className="priority medium">Medium</span>
               </div>
-              <h2>1</h2>
+              <h2>{hdCount}</h2>
               <small>copies</small>
             </div>
             <div className="document-mini-card">
@@ -110,7 +102,7 @@ export default function StaffDashboard() {
                 <p>Evaluation</p>
                 <span className="priority medium">Medium</span>
               </div>
-              <h2>1</h2>
+              <h2>{evalCount}</h2>
               <small>copies</small>
             </div>
             <div className="document-mini-card">
@@ -118,7 +110,7 @@ export default function StaffDashboard() {
                 <p>Officially Enrolled</p>
                 <span className="priority medium">Medium</span>
               </div>
-              <h2>1</h2>
+              <h2>{oeCount}</h2>
               <small>copies</small>
             </div>
           </div>
@@ -145,57 +137,8 @@ export default function StaffDashboard() {
             <span>Released</span>
           </div>
         </div>
-
-        <section className="dashboard-preview-card">
-            <div className="preview-header">
-                <h3>Processing Calendar</h3>
-                <a href="/staff/processing-calendar">View Full Calendar </a>
-            </div>
-
-            <div className="calendar-summary">
-                <div className="summary-item">
-                    <strong>5</strong>
-                    <span>Active Batches </span>
-                </div>
-                <div className="summary-item">
-                    <strong>18</strong>
-                    <span>Requests Scheduled</span>
-                </div>
-                <div className="summary-item">
-                    <strong>75%</strong>
-                    <span>Completion Rate </span>
-                </div>
-            </div>
-        </section>
-
-        <section className="dashboard-preview-card">
-            <div className="preview-header">
-                <h3>Recent Requests</h3>
-                <a href="/staff/process-requests">View All</a>
-            </div>
-
-            <table className="mini-request-table">
-
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Document</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {requests.slice(0, 5).map((req) => (
-                        <tr key={req.id}>
-                            <td>{req.student_name}</td>
-                            <td>{req.document_name}</td>
-                            <td>
-                                <span className={`status-badge ${req.status}`}>{req.status}</span>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </section>
+        <CalendarPreview requests={requests} loading={loading} error={error} />
+        <RequestPreview requests={requests} loading={loading} error={error} refetchRequests={refetchRequests} />
       </section>
     </div>
   );

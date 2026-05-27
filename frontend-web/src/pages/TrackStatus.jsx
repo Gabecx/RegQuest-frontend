@@ -6,13 +6,15 @@ import Footer from '../components/Footer';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import api from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 import '../styles/TrackStatus.css';
 
-const TrackStatus = ({ currentUser }) => {
+const TrackStatus = () => {
     const [trackingId, setTrackingId] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [requestData, setRequestData] = useState(null);
     const [error, setError] = useState('');
+    const { user } = useAuth();
     const location = useLocation();
 
     useEffect(() => {
@@ -92,7 +94,7 @@ const TrackStatus = ({ currentUser }) => {
 
     return (
         <div className="track-status-page">
-            <Navbar currentUser={currentUser} />
+            <Navbar />
             
             <main className="track-main-content">
                 <div className="track-header">

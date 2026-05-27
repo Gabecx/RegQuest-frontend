@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {CalendarDays} from "lucide-react";
-import { WEEKDAYS } from "../utils/constants";
-import "../styles/Calendar.css";
+import { WEEKDAYS } from "../../utils/constants";
+import "../../styles/Calendar.css";
 
 export default function CalendarPreview({ requests = [], loading, error }) {
     const [calendarData, setCalendarData] = useState([]);
 
     useEffect(() => {
-        const groupedData = {};
+        const groupedData = Object.create(null);
         
         requests.forEach((req) => {
             if (!req?.scheduled_date) return;
             const reqDate = new Date(req.scheduled_date);
-            if (isNaN(reqDate.getTime())) return; 
+            if (isNaN(reqDate.getTime())) return;
 
             const day = reqDate.getDate();
             if (!groupedData[day]) {
@@ -32,7 +32,6 @@ export default function CalendarPreview({ requests = [], loading, error }) {
         setCalendarData(formattedData);
     }, [requests]);
 
-
     return (
         <div className="dashboard-calendar-preview">
             <section className="calendar-card-main">
@@ -48,10 +47,7 @@ export default function CalendarPreview({ requests = [], loading, error }) {
                         </p>
                     </div>
                 </div>
-                {loading && <p style={{ textAlign: 'center', padding: '1rem' }}>Loading calendar preview...</p>}
-                {error && <p style={{ textAlign: 'center', padding: '1rem', color: 'red' }}>Error: {error}</p>}
-                {!loading && !error && (
-                    <>
+
                 <div className="calendar-grid weekday-header">
                     {WEEKDAYS.map((day) => (
                         <div key={day}>
@@ -76,7 +72,7 @@ export default function CalendarPreview({ requests = [], loading, error }) {
                                 <div className="batch-top">
 
                                     <span className="batch-status">
-                                        Active
+                                        Active {/* This is hardcoded. Consider making it dynamic based on request status. */}
                                     </span>
 
                                 </div>
@@ -96,11 +92,7 @@ export default function CalendarPreview({ requests = [], loading, error }) {
                         View Full Calendar
                     </Link>
                 </div>
-                    </>
-                )}
-
             </section>
-
         </div>
     );
 }
