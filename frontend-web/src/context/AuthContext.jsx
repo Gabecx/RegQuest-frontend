@@ -65,12 +65,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        setUser(null);
-        navigate('/');
+    const logout = async () => {
+        try {
+            const refreshToken = localStorage.getItem('refresh_token');
+            if (refreshToken) {
+                await api.post('/accounts/logout/', { refresh: refreshToken });
+            }
+        } catch (error) {
+            console.error("Backend logout failed", error);
+        } finally {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            setUser(null);
+            navigate('/');
+        }
     };
 
     const value = {

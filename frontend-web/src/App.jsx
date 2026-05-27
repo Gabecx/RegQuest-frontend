@@ -18,6 +18,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminRoles from './pages/admin/AdminRoles';
+import AdminVerification from './pages/admin/AdminVerification';
 
 const getRedirectPath = (user) => user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'staff' ? '/staff/dashboard' : '/home';
 
@@ -80,6 +81,11 @@ const AppContent = () => {
         <Route path="/admin/roles" element={
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminRoles />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/verification" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminVerification />
           </ProtectedRoute>
         } />
          

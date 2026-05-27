@@ -26,6 +26,12 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (isLoggingIn) return;
+
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
     setError("");
     setIsLoggingIn(true);
 

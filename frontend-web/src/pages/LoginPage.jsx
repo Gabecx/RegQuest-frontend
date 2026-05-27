@@ -14,6 +14,12 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (isLoggingIn) return;
+
+    if (!email || !password) {
+      setError('Email and password are required.');
+      return;
+    }
+
     setError('');
     setIsLoggingIn(true);
 

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../api/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 
 const AuthContext = createContext();
@@ -16,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const loadStoredUser = async () => {
             try {
-                const token = await AsyncStorage.getItem('jwt_token');
+                const token = await SecureStore.getItemAsync('jwt_token');
                 const storedUser = await AsyncStorage.getItem('user');
 
                 if (token && storedUser) {
@@ -53,9 +54,9 @@ export const AuthProvider = ({ children }) => {
             const userData = userResponse.data;
             
             // Only persist to storage if BOTH requests succeed
-            await AsyncStorage.setItem('jwt_token', access);
+            await SecureStore.setItemAsync('jwt_token', access);
             if (refresh) {
-                await AsyncStorage.setItem('refresh_token', refresh);
+                await SecureStore.setItemAsync('refresh_token', refresh);
             }
             await AsyncStorage.setItem('user', JSON.stringify(userData));
             
@@ -69,8 +70,16 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await AsyncStorage.removeItem('jwt_token');
-            await AsyncStorage.removeItem('refresh_token');
+            const refreshToken = await SecureStore.getItemAsync('refresh_token');
+            if (refreshToken) {
+                try {
+                    await api.post('/accounts/logout/', { refresh: refreshToken });
+                } catch (e) {
+                    console.log("Backend logout error:", e.message);
+                }
+            }
+            await SecureStore.deleteItemAsync('jwt_token');
+            await SecureStore.deleteItemAsync('refresh_token');
             await AsyncStorage.removeItem('user');
         } catch (error) {
             console.log("Logout error:", error.message);
