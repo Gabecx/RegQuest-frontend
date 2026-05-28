@@ -107,6 +107,7 @@ const AdminRoles = () => {
 
   const [selectedStudent, setSelectedStudent] = useState(null); 
   const [modalMode, setModalMode] = useState("view");
+  const [roleModalUser, setRoleModalUser] = useState(null);
   const [selectedNewRole, setSelectedNewRole] = useState("");   
 
   const openRoleModal = (user) => {

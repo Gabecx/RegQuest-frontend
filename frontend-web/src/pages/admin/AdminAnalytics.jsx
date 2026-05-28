@@ -253,7 +253,7 @@ const AdminAnalytics = () => {
     );
   }
 
-  if (error) {
+    if (error) {
     return (
       <AdminLayout>
         <div className="analytics-main">
@@ -267,6 +267,18 @@ const AdminAnalytics = () => {
       </AdminLayout>
     );
   }
-}
+
+  return (
+    <AdminLayout>
+      <div className="analytics-main">
+        <PageHeader view={view} setView={setView} />
+
+        <RequestVolumeChart view={view} apiData={apiData} />
+        <TotalRequestChart view={view} apiData={apiData} />
+        <BreakdownTable view={view} apiData={apiData} />
+      </div>
+    </AdminLayout>
+  );
+};
 
 export default AdminAnalytics;
