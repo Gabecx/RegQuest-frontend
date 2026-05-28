@@ -8,7 +8,6 @@ import {
 import AdminLayout from "../../components/admin/AdminLayout";
 import "../../styles/Adminanalytics.css";
 
-// ── COLORS ────────────────────────────────────────────────────────────────────
 const COLORS = {
   transcript: "#1a237e",
   honorable: "#f9a825",
@@ -18,7 +17,6 @@ const COLORS = {
   line: "#1565c0",
 };
 
-// ── HEADER ────────────────────────────────────────────────────────────────────
 function PageHeader({ view, setView }) {
   return (
     <div className="analytics-page-header">
@@ -51,7 +49,6 @@ function PageHeader({ view, setView }) {
   );
 }
 
-// ── LEGEND ────────────────────────────────────────────────────────────────────
 function CustomLegend() {
   const items = [
     { color: COLORS.transcript, label: "Transcript of records" },
@@ -73,7 +70,6 @@ function CustomLegend() {
   );
 }
 
-// ── REQUEST VOLUME CHART ─────────────────────────────────────────────────────
 function RequestVolumeChart({ view, apiData }) {
   const raw =
     view === "daily"
@@ -113,7 +109,6 @@ function RequestVolumeChart({ view, apiData }) {
   );
 }
 
-// ── TOTAL REQUEST CHART ──────────────────────────────────────────────────────
 function TotalRequestChart({ view, apiData }) {
   const raw =
     view === "daily"
@@ -150,7 +145,6 @@ function TotalRequestChart({ view, apiData }) {
   );
 }
 
-// ── BREAKDOWN TABLE ──────────────────────────────────────────────────────────
 function BreakdownTable({ view, apiData }) {
   const rows =
     view === "daily"
@@ -222,46 +216,57 @@ function BreakdownTable({ view, apiData }) {
   );
 }
 
-// ── MAIN COMPONENT ───────────────────────────────────────────────────────────
 const AdminAnalytics = () => {
   const [view, setView] = useState("daily");
   const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchDashboard = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get("requests/dashboard/");
+      setApiData(res.data);
+    } catch (err) {
+      console.error("Dashboard error:", err);
+      setError("Failed to load analytics data.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await axios.get("requests/dashboard/");
-        setApiData(res.data);
-      } catch (err) {
-        console.error("Dashboard error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboard();
   }, []);
 
   if (loading) {
     return (
       <AdminLayout>
-        <div className="analytics-main">Loading analytics...</div>
+        <div className="analytics-main">
+          <div className="analytics-loading">
+            <div className="analytics-loading__spinner" />
+            <span>Loading analytics...</span>
+          </div>
+        </div>
       </AdminLayout>
     );
   }
 
-  return (
-    <AdminLayout>
-      <div className="analytics-main">
-        <PageHeader view={view} setView={setView} />
-
-        <RequestVolumeChart view={view} apiData={apiData} />
-        <TotalRequestChart view={view} apiData={apiData} />
-        <BreakdownTable view={view} apiData={apiData} />
-      </div>
-    </AdminLayout>
-  );
-};
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="analytics-main">
+          <div className="analytics-error">
+            <span>{error}</span>
+            <button className="analytics-error__retry" onClick={fetchDashboard}>
+              Retry
+            </button>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+}
 
 export default AdminAnalytics;

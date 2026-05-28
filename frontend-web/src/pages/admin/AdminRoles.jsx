@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import "../../styles/AdminRoles.css";
 
-// ── ICON COMPONENTS ─────────────────────────────────
 const IconUsers = ({ size = 20, color = "#666" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -47,7 +46,6 @@ const IconX = ({ size = 14 }) => (
   </svg>
 );
 
-// Modal Field Icons
 const IconInputUser = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
@@ -79,7 +77,6 @@ const IconArrowLeft = () => (
   </svg>
 );
 
-// ── STATIC DATA ─────────────────────────────────────
 const initialPendingStudents = [
   { id: 1, name: "John Doe", email: "john.doe@gmail.com", requested: "2026-12-05", studentId: "2023301865", program: "Bachelor of Science in Information Technology", yearLevel: "1st Year" },
   { id: 2, name: "Sarah Chen", email: "sarah.chen@gmail.com", requested: "2026-12-05", studentId: "2023301988", program: "Bachelor of Science in Information Technology", yearLevel: "2nd Year" },
@@ -102,18 +99,14 @@ const initialStudentList = [
   { id: 3, name: "Jessica Gabica", idNum: "2023246853", program: "Bachelor of Science in Information Technology", year: "3rd Year", email: "jess@gmail.com" },
 ];
 
-// ── MAIN COMPONENT ──────────────────────────────────
 const AdminRoles = () => {
   const [isAdding, setIsAdding] = useState(false);
   
-  // Lists handled with local hooks for active UI updates upon edit saves
   const [pendingStudents, setPendingStudents] = useState(initialPendingStudents);
   const [studentList, setStudentList] = useState(initialStudentList);
 
-  // Modal contexts
   const [selectedStudent, setSelectedStudent] = useState(null); 
-  const [modalMode, setModalMode] = useState("view"); // "view" (Pending Requests) or "edit" (Registered Profiles)
-  const [roleModalUser, setRoleModalUser] = useState(null);     
+  const [modalMode, setModalMode] = useState("view");
   const [selectedNewRole, setSelectedNewRole] = useState("");   
 
   const openRoleModal = (user) => {
@@ -121,16 +114,22 @@ const AdminRoles = () => {
     setSelectedNewRole(user.role);
   };
 
-  // Handles text mutation changes directly inside inputs
   const handleInputChange = (field, value) => {
     setSelectedStudent((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Triggers when pressing the dark blue "Save" button
   const handleSaveChanges = () => {
     if (modalMode === "edit") {
       setStudentList((prevList) =>
-        prevList.map((s) => (s.id === selectedStudent.id ? selectedStudent : s))
+        prevList.map((s) =>
+          s.id === selectedStudent.id
+            ? {
+                ...selectedStudent,
+                idNum: selectedStudent.studentId,
+                year: selectedStudent.yearLevel,
+              }
+            : s
+        )
       );
     } else {
       setPendingStudents((prevList) =>
@@ -144,7 +143,6 @@ const AdminRoles = () => {
     <AdminLayout>
       <div className="roles-main">
 
-        {/* STAT CARDS */}
         <div className="roles-stats">
           <div className="roles-stat-card gray">
             <div className="stat-header">
@@ -179,7 +177,6 @@ const AdminRoles = () => {
           </div>
         </div>
 
-        {/* PENDING STUDENTS */}
         <div className="roles-card pending-students-card">
           <div className="section-title-inline orange-text">
             <IconUserPlus size={24} color="#e67e22" />
@@ -200,7 +197,7 @@ const AdminRoles = () => {
                     className="btn-view" 
                     onClick={() => {
                       setSelectedStudent(student);
-                      setModalMode("view"); // Read-only look + approve/reject actions
+                      setModalMode("view");
                     }}
                   >
                     View Infromation
@@ -217,7 +214,6 @@ const AdminRoles = () => {
           </div>
         </div>
 
-        {/* PENDING ROLES */}
         <div className="roles-card structured-section">
           <div className="table-header yellow-header">
             <h2>Pending Role Requests</h2>
@@ -262,7 +258,6 @@ const AdminRoles = () => {
           </div>
         </div>
 
-        {/* ADD NEW USER SECTION */}
         <div className="roles-card add-user-section-container">
           {!isAdding ? (
             <div className="add-user-trigger-view">
@@ -289,7 +284,6 @@ const AdminRoles = () => {
           )}
         </div>
 
-        {/* STAFF & ROLE MANAGEMENT */}
         <div className="roles-card structured-section blue-bg-section">
           <div className="section-title-with-subtitle">
             <div className="title-icon-wrapper">
@@ -342,7 +336,6 @@ const AdminRoles = () => {
           </div>
         </div>
 
-        {/* STUDENT ACCOUNTS MANAGEMENT */}
         <div className="roles-card structured-section green-bg-section">
           <div className="section-title-with-subtitle">
             <div className="title-icon-wrapper">
@@ -380,11 +373,11 @@ const AdminRoles = () => {
                         onClick={() => {
                           setSelectedStudent({
                             ...student,
-                            studentId: student.idNum, // Mapping table keys to modal state keys
+                            studentId: student.idNum,
                             program: student.program,
                             yearLevel: student.year
                           });
-                          setModalMode("edit"); // Changes bottom toolbar to Save mode
+                          setModalMode("edit");
                         }}
                       >
                         View / Update
@@ -397,7 +390,6 @@ const AdminRoles = () => {
           </div>
         </div>
 
-        {/* ── STUDENT INFORMATION MODAL (EDITABLE / NOT EDITABLE) ── */}
         {selectedStudent && (
           <div className="modal-backdrop-overlay">
             <div className="student-info-modal-card">
