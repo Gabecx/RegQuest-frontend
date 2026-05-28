@@ -1,3 +1,6 @@
+import React from "react";
+import AdminLayout from "../../components/admin/AdminLayout";
+
 const AdminRequests = () => {
   return (
     <AdminLayout>
@@ -7,3 +10,5 @@ const AdminRequests = () => {
     </AdminLayout>
   );
 };
+
+export default AdminRequests;
