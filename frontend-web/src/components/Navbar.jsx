@@ -4,17 +4,17 @@ import { useAuth } from '../context/AuthContext';
 import { Bell, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
 import logo from '../assets/regquest-logo.png';
 import '../styles/Navbar.css';
-
-const Navbar = ({ currentUser }) => {
+const Navbar = () => {
     const location = useLocation();
-    const { logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const { user, logout } = useAuth();
 
-    const user = currentUser || {
-        name: "User",
-        notifications: 5
+    const displayUser = user || { 
+        name: "Guest",
+        notifications: 0,
+        role: 'guest'
     };
 
     useEffect(() => {
@@ -30,9 +30,7 @@ const Navbar = ({ currentUser }) => {
         };
     }, []);
 
-    const isActive = (path) => {
-        return location.pathname === path ? "nav-link active" : "nav-link";
-    };
+    const isActive = (path) => location.pathname === path ? "nav-link active" : "nav-link";
 
     return (
         <nav className="navbar">
@@ -41,43 +39,43 @@ const Navbar = ({ currentUser }) => {
                     <img src={logo} alt="RegQuest" className="logo-image" />
                 </Link>
             </div>
-
             <button 
                 className="mobile-menu-btn" 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-expanded={isMenuOpen}
-                aria-label="Toggle navigation menu"
-            >
+                aria-label="Toggle navigation menu">
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
             <div className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
                 <Link to="/home" className={isActive('/home')} onClick={() => setIsMenuOpen(false)}>Home</Link>
                 
-                {user?.role === 'student' && (
+                {displayUser?.role === 'student' && (
                     <>
                         <Link to="/request-document" className={isActive('/request-document')} onClick={() => setIsMenuOpen(false)}>Request Document</Link>
                         <Link to="/track-status" className={isActive('/track-status')} onClick={() => setIsMenuOpen(false)}>Track Status</Link>
                     </>
                 )}
-                 {user?.role === 'staff' && (
-                    <Link to="/staff-dashboard" className={isActive('/staff-dashboard')} onClick={() => setIsMenuOpen(false)}>Process Requests</Link>
+                {displayUser?.role === 'staff' && (
+                    <>
+                        <Link to="/staff/dashboard" className={isActive('/staff/dashboard')} onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                        <Link to="/staff/process-requests" className={isActive('/staff/process-requests')} onClick={() => setIsMenuOpen(false)}>Requests</Link>
+                    </>
                 )}
-                {user?.role === 'admin' && (
+                {displayUser?.role === 'admin' && (
                     <Link to="/admin/dashboard" className={isActive('/admin/dashboard')} onClick={() => setIsMenuOpen(false)}>System Administration</Link>
                 )}
             </div>
-
             <div className="user-section">
                 <button className="notification-btn">
                     <Bell size={20} />
-                    {user.notifications > 0 && (
-                        <span className="notification-badge">{user.notifications}</span>
+                    {displayUser.notifications > 0 && (
+                        <span className="notification-badge">{displayUser.notifications}</span>
                     )}
                 </button>
                 <div className="user-profile" ref={dropdownRef}>
-                    <span style={{ marginRight: '10px', fontWeight: '600', color: '#4B4A4A' }}>
-                        Hello, {user.first_name || user.name?.split(' ')[0] || "User"}
+                    <span style={{ marginRight: '10px', fontWeight: '600', color: '#4B4A4A' }}> 
+                        Hello, {displayUser.first_name || displayUser.name?.split(' ')[0] || "User"}
                     </span>
                     <button 
                         className="profile-btn"
@@ -105,6 +103,5 @@ const Navbar = ({ currentUser }) => {
             </div>
         </nav>
     );
-};
-
+}
 export default Navbar;

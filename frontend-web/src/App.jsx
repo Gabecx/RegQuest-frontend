@@ -11,13 +11,16 @@ import TrackStatus from './pages/TrackStatus';
 import ProfilePage from './pages/ProfilePage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Dashboard from './pages/staff/Dashboard';
+import RequestProcess from './pages/staff/RequestProcess';
+import Calendar from './pages/staff/Calendar';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminRoles from './pages/admin/AdminRoles';
 import AdminVerification from './pages/admin/AdminVerification';
 
-const getRedirectPath = (user) => user?.role === 'admin' ? '/admin/dashboard' : '/home';
+const getRedirectPath = (user) => user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'staff' ? '/staff/dashboard' : '/home';
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -39,6 +42,26 @@ const AppContent = () => {
             <HomePage currentUser={user} />
           </ProtectedRoute>
         } />
+
+        <Route path="/staff/dashboard" element={
+          <ProtectedRoute allowedRoles={['staff']}>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/staff/process-requests" element={
+            <ProtectedRoute allowedRoles={['staff']}>
+              <RequestProcess />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/staff/processing-calendar" element={
+            <ProtectedRoute allowedRoles={['staff']}>
+              <Calendar />
+            </ProtectedRoute>
+          } 
+        />
 
         <Route path="/admin/dashboard" element={
           <ProtectedRoute allowedRoles={['admin']}>

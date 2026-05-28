@@ -51,7 +51,6 @@ const RequestDocument = ({ currentUser }) => {
             try {
                 const response = await api.get('/documents/');
                 const data = response.data;;
-
                 const formatted = data.map(item => ({
                     id: item.id,
                     name: item.document_name || item.name,
@@ -77,7 +76,7 @@ const RequestDocument = ({ currentUser }) => {
                     { id: 8, name: 'Officially Enrolled', description: 'Official academic record', price: 80, isPerPg: false },
                     { id: 9, name: 'Earned Units', description: 'Official academic record', price: 80, isPerPg: false },
                 ]);
-            } finally {
+            } finally { 
                 setLoading(false);
             }
         };
@@ -150,11 +149,10 @@ const RequestDocument = ({ currentUser }) => {
             const summary = selected.map(doc => `${doc.name} x${getCopies(doc.id)}`).join('\n');
             const maxDays = Math.max(...selected.map(doc => doc.processing_time_days || 3), 3);
 
-            const response = await api.post("/requests/", {
-                documents_summary: summary,
-                purpose: purpose,
-                processing_time_days: maxDays,
-                total_price: calculateTotal().toFixed(2)
+            const response = await api.post('/requests/', {
+                document_type: selected.length > 0 ? selected[0].id : null,
+                quantity: selected.length > 0 ? getCopies(selected[0].id) : 1,
+                total_price: calculateTotal().toFixed(2),
             });
 
             console.log("Submission successful:", response.data);
@@ -207,7 +205,6 @@ const RequestDocument = ({ currentUser }) => {
                 {currentStep === 1 && (
                     <Card className="request-card">
                         <h2 className="card-title">Select Document</h2>
-                        
                         <div className="document-list">
                             {documents.map((doc) => {
                                 const isSelected = selectedDocs.includes(doc.id);
@@ -247,7 +244,6 @@ const RequestDocument = ({ currentUser }) => {
                                 );
                             })}
                         </div>
-
                         <div className="total-section">
                             <span className="total-label">Total:</span>
                             <div className="total-amount">P{calculateTotal().toFixed(2)}</div>
@@ -269,7 +265,6 @@ const RequestDocument = ({ currentUser }) => {
                 {currentStep === 2 && (
                     <Card className="request-card">
                         <h2 className="card-title">Review Data</h2>
-                        
                         <div className="review-data-container">
                             <div className="review-section">
                                 <h3 className="section-subtitle">Document Request:</h3>
@@ -332,8 +327,8 @@ const RequestDocument = ({ currentUser }) => {
                                     value={purpose} 
                                     onChange={(e) => setPurpose(e.target.value)} 
                                 />
-                            </div>
                         </div>
+                    </div>
 
                         <p className="warning-text">Incorrect Information? Contact the admin if you think theres a mistake</p>
 
