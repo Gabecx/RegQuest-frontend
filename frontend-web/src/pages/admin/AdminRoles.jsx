@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
+import api from "../../api/axios";
 import "../../styles/AdminRoles.css";
 
 const IconUsers = ({ size = 20, color = "#666" }) => (
@@ -77,38 +78,79 @@ const IconArrowLeft = () => (
   </svg>
 );
 
-const initialPendingStudents = [
-  { id: 1, name: "John Doe", email: "john.doe@gmail.com", requested: "2026-12-05", studentId: "2023301865", program: "Bachelor of Science in Information Technology", yearLevel: "1st Year" },
-  { id: 2, name: "Sarah Chen", email: "sarah.chen@gmail.com", requested: "2026-12-05", studentId: "2023301988", program: "Bachelor of Science in Information Technology", yearLevel: "2nd Year" },
-  { id: 3, name: "Barbie Doll", email: "barbie.doll@gmail.com", requested: "2026-12-05", studentId: "2023304412", program: "Bachelor of Science in Data Science", yearLevel: "1st Year" },
-];
-
-const pendingRoles = [
-  { id: 1, name: "Matt Ferrer", email: "matt.ferrer@ustp.edu.ph", role: "Staff", date: "May 9, 2026" },
-];
-
-const staffList = [
-  { id: 1, name: "Admin User", email: "admin@ustp.edu.ph", role: "Administrator", status: "Active" },
-  { id: 2, name: "Maria Santos", email: "maria.santos@ustp.edu.ph", role: "Staff", status: "Active" },
-  { id: 3, name: "Juan Dela Cruz", email: "juan.delacruz@ustp.edu.ph", role: "Staff", status: "Inactive" },
-];
-
-const initialStudentList = [
-  { id: 1, name: "Maria Clara Santos", idNum: "2023123456", program: "Bachelor of Science in Information Technology", year: "1st Year", email: "Maria@gmail.com" },
-  { id: 2, name: "Juan Carlos Dizon", idNum: "2023654321", program: "Bachelor of Science in Data Science", year: "2nd Year", email: "juan@gmail.com" },
-  { id: 3, name: "Jessica Gabica", idNum: "2023246853", program: "Bachelor of Science in Information Technology", year: "3rd Year", email: "jess@gmail.com" },
-];
-
 const AdminRoles = () => {
   const [isAdding, setIsAdding] = useState(false);
   
-  const [pendingStudents, setPendingStudents] = useState(initialPendingStudents);
-  const [studentList, setStudentList] = useState(initialStudentList);
+  const [pendingStudents, setPendingStudents] = useState([]);
+  const [studentList, setStudentList] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [stats, setStats] = useState({ total: 0, staff: 0, admin: 0, pending: 0 });
 
   const [selectedStudent, setSelectedStudent] = useState(null); 
   const [modalMode, setModalMode] = useState("view");
   const [roleModalUser, setRoleModalUser] = useState(null);
   const [selectedNewRole, setSelectedNewRole] = useState("");   
+  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'staff' });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [pendingRes, approvedRes, usersRes] = await Promise.all([
+        api.get('/accounts/verifications/?status=PENDING'),
+        api.get('/accounts/verifications/?status=APPROVED'),
+        api.get('/accounts/users/')
+      ]);
+
+      const pendingData = pendingRes.data.results || pendingRes.data;
+      const formattedPending = pendingData.map(p => ({
+        id: p.id,
+        name: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
+        email: p.email,
+        requested: p.verified_at ? new Date(p.verified_at).toLocaleDateString() : 'Pending',
+        studentId: p.univ_id,
+        program: p.course,
+        yearLevel: `${p.year_level} Year`,
+        id_image_url: p.id_image_url
+      }));
+      setPendingStudents(formattedPending);
+
+      const approvedData = approvedRes.data.results || approvedRes.data;
+      const formattedApproved = approvedData.map(s => ({
+        id: s.id,
+        name: `${s.first_name || ''} ${s.last_name || ''}`.trim(),
+        idNum: s.univ_id,
+        program: s.course,
+        year: `${s.year_level} Year`,
+        email: s.email,
+        id_image_url: s.id_image_url
+      }));
+      setStudentList(formattedApproved);
+
+      const allUsers = usersRes.data.results || usersRes.data;
+      const staffAndAdmin = allUsers.filter(u => u.role === 'staff' || u.role === 'admin' || u.role === 'Administrator' || u.role === 'Staff');
+      const formattedStaff = staffAndAdmin.map(u => ({
+        id: u.id,
+        name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.email,
+        email: u.email,
+        role: (u.role === 'admin' || u.role === 'Administrator') ? 'Administrator' : 'Staff',
+        status: u.is_active ? 'Active' : 'Inactive'
+      }));
+      setStaffList(formattedStaff);
+
+      setStats({
+        total: allUsers.length,
+        staff: formattedStaff.filter(u => u.role === 'Staff').length,
+        admin: formattedStaff.filter(u => u.role === 'Administrator').length,
+        pending: formattedPending.length
+      });
+
+    } catch (err) {
+      console.error('Error fetching admin role data:', err);
+    }
+  };
 
   const openRoleModal = (user) => {
     setRoleModalUser(user);
@@ -119,25 +161,78 @@ const AdminRoles = () => {
     setSelectedStudent((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveChanges = () => {
-    if (modalMode === "edit") {
-      setStudentList((prevList) =>
-        prevList.map((s) =>
-          s.id === selectedStudent.id
-            ? {
-                ...selectedStudent,
-                idNum: selectedStudent.studentId,
-                year: selectedStudent.yearLevel,
-              }
-            : s
-        )
-      );
-    } else {
-      setPendingStudents((prevList) =>
-        prevList.map((s) => (s.id === selectedStudent.id ? selectedStudent : s))
-      );
+  const handleSaveChanges = async () => {
+    try {
+      const nameParts = (selectedStudent.name || '').trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      await api.post(`/accounts/verifications/${selectedStudent.id}/update_profile/`, {
+        first_name: firstName,
+        last_name: lastName,
+        univ_id: selectedStudent.studentId,
+        course: selectedStudent.program,
+        year_level: parseInt(selectedStudent.yearLevel) || 1
+      });
+      fetchData();
+      setSelectedStudent(null);
+    } catch (err) {
+      console.error('Failed to update student profile:', err);
+      const backendError = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+      alert(`Failed to update profile. Error: ${backendError}`);
     }
-    setSelectedStudent(null);
+  };
+
+  const handleDeactivate = async (id) => {
+    try {
+      await api.post(`/accounts/users/${id}/toggle_active/`);
+      fetchData();
+    } catch (err) {
+      console.error('Failed to toggle active status:', err);
+      alert('Failed to update user status.');
+    }
+  };
+
+  const handleAddUser = async () => {
+    if (!newUser.name || !newUser.email) {
+      alert("Name and Email are required");
+      return;
+    }
+    try {
+      await api.post('/accounts/users/create_staff/', newUser);
+      setIsAdding(false);
+      setNewUser({ name: '', email: '', role: 'staff' });
+      fetchData();
+      alert("New user created successfully! Default password is: RegQuest@123");
+    } catch (err) {
+      console.error("Failed to create user:", err);
+      alert("Failed to create user. Email may already exist.");
+    }
+  };
+
+  const handleVerifyStudent = async (studentId, status) => {
+    try {
+      await api.post(`/accounts/verifications/${studentId}/verify/`, {
+        verification_status: status
+      });
+      fetchData(); // Refresh all data
+      setSelectedStudent(null);
+    } catch (err) {
+      console.error('Failed to verify student:', err);
+      alert('Failed to process verification. Please try again.');
+    }
+  };
+
+  const handleSaveRole = async () => {
+    if (!roleModalUser) return;
+    const rolePayload = selectedNewRole === 'Administrator' ? 'admin' : 'staff';
+    try {
+      await api.post(`/accounts/users/${roleModalUser.id}/assign_role/`, { role: rolePayload });
+      fetchData(); // Refresh list
+      setRoleModalUser(null);
+    } catch (err) {
+      console.error('Failed to assign role:', err);
+      alert('Failed to save role. Please try again.');
+    }
   };
 
   return (
@@ -150,7 +245,7 @@ const AdminRoles = () => {
               <IconUsers size={16} color="#8e8e8e" />
               <h4>Total Users</h4>
             </div>
-            <h1>5</h1>
+            <h1>{stats.total}</h1>
           </div>
 
           <div className="roles-stat-card green">
@@ -158,7 +253,7 @@ const AdminRoles = () => {
               <IconUsers size={16} color="#41d98a" />
               <h4>Staff Member</h4>
             </div>
-            <h1>2</h1>
+            <h1>{stats.staff}</h1>
           </div>
 
           <div className="roles-stat-card blue">
@@ -166,7 +261,7 @@ const AdminRoles = () => {
               <IconShield size={16} color="#7286ff" />
               <h4>Administrator</h4>
             </div>
-            <h1>2</h1>
+            <h1>{stats.admin}</h1>
           </div>
 
           <div className="roles-stat-card orange">
@@ -174,7 +269,7 @@ const AdminRoles = () => {
               <IconUserPlus size={16} color="#ffa34d" />
               <h4>Pending Approval</h4>
             </div>
-            <h1>2</h1>
+            <h1>{stats.pending}</h1>
           </div>
         </div>
 
@@ -203,10 +298,10 @@ const AdminRoles = () => {
                   >
                     View Infromation
                   </button>
-                  <button className="btn-approve-outline">
+                  <button className="btn-approve-outline" onClick={() => handleVerifyStudent(student.id, 'APPROVED')}>
                     <IconCheck size={13} /> Approve
                   </button>
-                  <button className="btn-reject-outline">
+                  <button className="btn-reject-outline" onClick={() => handleVerifyStudent(student.id, 'REJECTED')}>
                     <IconX size={13} /> Reject
                   </button>
                 </div>
@@ -215,49 +310,7 @@ const AdminRoles = () => {
           </div>
         </div>
 
-        <div className="roles-card structured-section">
-          <div className="table-header yellow-header">
-            <h2>Pending Role Requests</h2>
-          </div>
 
-          <div className="table-responsive">
-            <table className="roles-table borderless-first-th">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Requested Role</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingRoles.map((role) => (
-                  <tr key={role.id}>
-                    <td className="font-semibold">{role.name}</td>
-                    <td className="text-muted">{role.email}</td>
-                    <td>
-                      <span className="badge staff-badge">
-                        {role.role}
-                      </span>
-                    </td>
-                    <td className="text-muted">{role.date}</td>
-                    <td>
-                      <div className="action-buttons-group">
-                        <button className="btn-approve-outline">
-                          <IconCheck size={13} /> Approve
-                        </button>
-                        <button className="btn-reject-outline">
-                          <IconX size={13} /> Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         <div className="roles-card add-user-section-container">
           {!isAdding ? (
@@ -270,15 +323,15 @@ const AdminRoles = () => {
             <div className="add-user-form-expanded">
               <h2>Add New User</h2>
               <div className="add-user-inputs-row">
-                <input type="text" placeholder="Full Name" className="form-control" />
-                <input type="email" placeholder="Email" className="form-control" />
-                <select className="form-select">
-                  <option>Staff</option>
-                  <option>Administrator</option>
+                <input type="text" placeholder="Full Name" className="form-control" value={newUser.name} onChange={e => setNewUser({...newUser, name: e.target.value})} />
+                <input type="email" placeholder="Email" className="form-control" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} />
+                <select className="form-select" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})}>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Administrator</option>
                 </select>
               </div>
               <div className="add-user-actions-row">
-                <button className="btn-add-submit">Add User</button>
+                <button className="btn-add-submit" onClick={handleAddUser}>Add User</button>
                 <button className="btn-cancel-submit" onClick={() => setIsAdding(false)}>Cancel</button>
               </div>
             </div>
@@ -327,7 +380,12 @@ const AdminRoles = () => {
                         <button className="btn-change-role" onClick={() => openRoleModal(staff)}>
                           Change Role
                         </button>
-                        <button className="btn-deactivate">Deactivate</button>
+                        <button 
+                          className={staff.status === "Active" ? "btn-deactivate" : "btn-deactivate text-green-600 border-green-600"} 
+                          onClick={() => handleDeactivate(staff.id)}
+                        >
+                          {staff.status === "Active" ? "Deactivate" : "Activate"}
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -466,7 +524,7 @@ const AdminRoles = () => {
                   <label>School ID</label>
                   <div className="school-id-preview-box">
                     <img 
-                      src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=300&auto=format&fit=crop" 
+                      src={selectedStudent.id_image_url || "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=300&auto=format&fit=crop"} 
                       alt="School ID Card" 
                       className="id-card-img"
                     />
@@ -486,10 +544,10 @@ const AdminRoles = () => {
                   </button>
                 ) : (
                   <div className="modal-decision-buttons">
-                    <button className="btn-modal-approve" onClick={() => setSelectedStudent(null)}>
+                    <button className="btn-modal-approve" onClick={() => handleVerifyStudent(selectedStudent.id, 'APPROVED')}>
                       <IconCheck size={16} /> Approve
                     </button>
-                    <button className="btn-modal-reject" onClick={() => setSelectedStudent(null)}>
+                    <button className="btn-modal-reject" onClick={() => handleVerifyStudent(selectedStudent.id, 'REJECTED')}>
                       <IconX size={16} /> Reject
                     </button>
                   </div>
@@ -548,7 +606,7 @@ const AdminRoles = () => {
                 <button className="btn-role-cancel" onClick={() => setRoleModalUser(null)}>
                   Cancel
                 </button>
-                <button className="btn-role-save" onClick={() => setRoleModalUser(null)}>
+                <button className="btn-role-save" onClick={handleSaveRole}>
                   Save
                 </button>
               </div>

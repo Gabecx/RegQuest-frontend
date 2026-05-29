@@ -5,7 +5,7 @@ import StaffPerformance from '../../components/admin/StaffPerformance';
 import RequestVolumeChart from '../../components/admin/RequestVolumeChart';
 import UserRoleManagement from '../../components/admin/UserRoleManagement';
 import api from '../../api/axios';
-import { RefreshCw, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle, Brain } from 'lucide-react';
 
 const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -61,6 +61,31 @@ const AdminDashboard = () => {
     <AdminLayout banner={banner}>
       <div className="space-y-12">
         <div className="space-y-6">
+          <div className="bg-[#DCE4FE] rounded-xl p-6 shadow-sm border border-indigo-100">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="bg-[#A4B5F9] text-[#00007F] p-2 rounded-lg">
+                <Brain size={24} />
+              </div>
+              <h3 className="text-[#00007F] text-2xl font-bold">Predicted Insight this week</h3>
+            </div>
+            <div className="bg-[#7D91E1] rounded-md p-5 border border-indigo-400">
+              <ul className="space-y-4">
+                <li className="flex items-center space-x-4 text-gray-900 text-sm font-medium">
+                  <span className="w-2 h-2 bg-[#00007F] rounded-full flex-shrink-0"></span>
+                  <span>Request volume is expected to peak <strong className="font-extrabold text-black">this week</strong> with approximately <strong className="font-extrabold text-black">25 requests</strong></span>
+                </li>
+                <li className="flex items-center space-x-4 text-gray-900 text-sm font-medium">
+                  <span className="w-2 h-2 bg-[#00007F] rounded-full flex-shrink-0"></span>
+                  <span>Transcript of records requests show <strong className="font-extrabold text-black">+8% growth trend</strong></span>
+                </li>
+                <li className="flex items-center space-x-4 text-gray-900 text-sm font-medium">
+                  <span className="w-2 h-2 bg-[#00007F] rounded-full flex-shrink-0"></span>
+                  <span>Model accuracy based on last 4 weeks: <strong className="font-extrabold text-black">87% confidence</strong></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
           <div className="flex items-start justify-between">
             <div>
               <h3 className="text-2xl font-bold text-gray-900">Request Logs &amp; Reports</h3>

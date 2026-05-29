@@ -43,67 +43,77 @@ export default function RequestPreview({ requests = [], loading, error, refetchR
     };
 
     return (
-        <div className="dashboard-preview-card">
-            <div className="preview-header">
-                <h3>Latest Requests</h3>
-                <Link to="/staff/process-requests">View All</Link>
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm font-sans mt-6">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-900">Latest Requests</h3>
+                <Link to="/staff/process-requests" className="text-blue-600 font-semibold text-sm hover:underline">View All</Link>
             </div>
-            <table className="mini-request-table">
-                <thead>
-                    <tr>
-                        <th>REQUEST ID</th>
-                        <th>STUDENT</th>
-                        <th>DOCUMENT TYPE</th>
-                        <th>STATUS</th>
-                        <th>REQUEST DATE</th>
-                        <th>RELEASE DATE</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {latestRequests.length > 0 ? (
-                        latestRequests.map((req) => (
-                            <tr key={req.id}>
-                                <td>{req.tracking_number}</td>
-                                <td>
-                                    <div className="student-cell">
-                                        <strong>{req.student_name}</strong>
-                                        <span>ID: {req.user}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="document-cell">
-                                        <strong>{req.document_name}</strong>
-                                        <span>{req.quantity} copy</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span className={`status-badge ${req.status}`}>
-                                        {req.status}
-                                    </span>
-                                </td>
-                                <td>
-                                    {req.created_at ? new Date(req.created_at).toLocaleDateString() : "N/A"}
-                                </td>
-                                <td>
-                                    {req.est_release_date ? new Date(req.est_release_date).toLocaleDateString() : "N/A"}
-                                </td>
-                                <td>
-                                    <button className="view-btn" onClick={() => setSelectedRequest(req)}>
-                                        <Eye size={14} />View
-                                    </button>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="border-b border-gray-200">
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">REQUEST ID</th>
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">STUDENT</th>
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">DOCUMENT TYPE</th>
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">STATUS</th>
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">REQUEST DATE</th>
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">RELEASE DATE</th>
+                            <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {latestRequests.length > 0 ? (
+                            latestRequests.map((req) => (
+                                <tr key={req.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                    <td className="py-4 px-4 text-sm text-gray-700 font-medium">{req.tracking_number}</td>
+                                    <td className="py-4 px-4">
+                                        <div className="flex flex-col">
+                                            <strong className="text-gray-900 text-sm">{req.student_name}</strong>
+                                            <span className="text-xs text-gray-500">ID: {req.user}</span>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <div className="flex flex-col">
+                                            <strong className="text-gray-900 text-sm">{req.document_name}</strong>
+                                            <span className="text-xs text-gray-500">{req.quantity} copy</span>
+                                        </div>
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize ${
+                                            req.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                                            req.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                                            req.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                            'bg-gray-100 text-gray-800'
+                                        }`}>
+                                            {req.status}
+                                        </span>
+                                    </td>
+                                    <td className="py-4 px-4 text-sm text-gray-600">
+                                        {req.created_at ? new Date(req.created_at).toLocaleDateString() : "N/A"}
+                                    </td>
+                                    <td className="py-4 px-4 text-sm text-gray-600">
+                                        {req.est_release_date ? new Date(req.est_release_date).toLocaleDateString() : "N/A"}
+                                    </td>
+                                    <td className="py-4 px-4">
+                                        <button 
+                                            className="inline-flex items-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                                            onClick={() => setSelectedRequest(req)}
+                                        >
+                                            <Eye size={14} /> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="text-center py-8 text-gray-500 text-sm">
+                                    No recent requests to display.
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="7" style={{ textAlign: 'center', padding: '1rem' }}>
-                                No recent requests to display.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             <RequestModal
                 request={selectedRequest}

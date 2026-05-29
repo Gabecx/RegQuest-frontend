@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "../../api/axios";
 import {
   BarChart, Bar, LineChart, Line,
@@ -8,14 +8,25 @@ import {
 import AdminLayout from "../../components/admin/AdminLayout";
 import "../../styles/Adminanalytics.css";
 
-const COLORS = {
-  transcript: "#1a237e",
-  honorable: "#f9a825",
-  evaluation: "#ef6c00",
-  car: "#c62828",
-  enrolled: "#b0bec5",
-  line: "#1565c0",
-};
+// Dynamic color palette generator
+const PALETTE = [
+  "#1a237e", "#f9a825", "#ef6c00", "#c62828", "#b0bec5",
+  "#2e7d32", "#6a1b9a", "#00838f", "#d84315", "#4e342e"
+];
+
+function useDynamicDocTypes(apiData) {
+  return useMemo(() => {
+    if (!apiData?.document_type_distribution) return { docTypes: [], colorMap: {} };
+    
+    const types = apiData.document_type_distribution.map(d => d.name);
+    const colorMap = {};
+    types.forEach((type, index) => {
+      colorMap[type] = PALETTE[index % PALETTE.length];
+    });
+    
+    return { docTypes: types, colorMap };
+  }, [apiData]);
+}
 
 function PageHeader({ view, setView }) {
   return (
@@ -39,57 +50,48 @@ function PageHeader({ view, setView }) {
         </button>
 
         <button
-          onClick={() => setView("monthly")}
-          className={`analytics-view-toggle__btn ${view === "monthly" ? "analytics-view-toggle__btn--active" : ""}`}
+          onClick={() => setView("weekly")}
+          className={`analytics-view-toggle__btn ${view === "weekly" ? "analytics-view-toggle__btn--active" : ""}`}
         >
-          Monthly
+          Weekly
         </button>
       </div>
     </div>
   );
 }
 
-function CustomLegend() {
-  const items = [
-    { color: COLORS.transcript, label: "Transcript of records" },
-    { color: COLORS.honorable, label: "Honorable Dismissal" },
-    { color: COLORS.evaluation, label: "Evaluation" },
-    { color: COLORS.car, label: "CAR" },
-    { color: COLORS.enrolled, label: "Officially enrolled" },
-  ];
-
+function CustomLegend({ docTypes, colorMap }) {
   return (
     <div className="analytics-legend">
-      {items.map((item) => (
-        <div key={item.label} className="analytics-legend__item">
-          <div className="analytics-legend__dot" style={{ background: item.color }} />
-          <span className="analytics-legend__label">{item.label}</span>
+      {docTypes.map((type) => (
+        <div key={type} className="analytics-legend__item">
+          <div className="analytics-legend__dot" style={{ background: colorMap[type] }} />
+          <span className="analytics-legend__label">{type}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function RequestVolumeChart({ view, apiData }) {
+function RequestVolumeChart({ view, apiData, docTypes, colorMap }) {
   const raw =
     view === "daily"
       ? apiData?.request_volume?.daily || []
-      : apiData?.request_volume?.monthly || [];
+      : apiData?.request_volume?.weekly || [];
 
-  const data = raw.map((item) => ({
-    label: item.label,
-    transcript: item.breakdown["Transcript of Record"] || 0,
-    honorable: item.breakdown["Honorable Dismissal"] || 0,
-    evaluation: item.breakdown["Evaluation"] || 0,
-    car: item.breakdown["CAR"] || 0,
-    enrolled: item.breakdown["Officially Enrolled"] || 0,
-  }));
+  const data = raw.map((item) => {
+    const formattedItem = { label: item.label };
+    docTypes.forEach(type => {
+      formattedItem[type] = item.breakdown?.[type] || 0;
+    });
+    return formattedItem;
+  });
 
   return (
     <div className="analytics-card">
       <div className="analytics-card__title">Request Volume</div>
 
-      <CustomLegend />
+      <CustomLegend docTypes={docTypes} colorMap={colorMap} />
 
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data}>
@@ -98,11 +100,9 @@ function RequestVolumeChart({ view, apiData }) {
           <YAxis />
           <Tooltip />
 
-          <Bar dataKey="transcript" stackId="a" fill={COLORS.transcript} />
-          <Bar dataKey="honorable" stackId="a" fill={COLORS.honorable} />
-          <Bar dataKey="evaluation" stackId="a" fill={COLORS.evaluation} />
-          <Bar dataKey="car" stackId="a" fill={COLORS.car} />
-          <Bar dataKey="enrolled" stackId="a" fill={COLORS.enrolled} />
+          {docTypes.map(type => (
+            <Bar key={type} dataKey={type} stackId="a" fill={colorMap[type]} />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -113,7 +113,7 @@ function TotalRequestChart({ view, apiData }) {
   const raw =
     view === "daily"
       ? apiData?.request_volume?.daily || []
-      : apiData?.request_volume?.monthly || [];
+      : apiData?.request_volume?.weekly || [];
 
   const data = raw.map((item) => ({
     label: item.label,
@@ -123,7 +123,7 @@ function TotalRequestChart({ view, apiData }) {
   return (
     <div className="analytics-card">
       <div className="analytics-card__title">
-        {view === "daily" ? "Daily Total Request" : "Monthly Total Request"}
+        {view === "daily" ? "Daily Total Request" : "Weekly Total Request"}
       </div>
 
       <ResponsiveContainer width="100%" height={320}>
@@ -136,7 +136,7 @@ function TotalRequestChart({ view, apiData }) {
           <Line
             type="monotone"
             dataKey="total"
-            stroke={COLORS.line}
+            stroke="#1565c0"
             strokeWidth={2.5}
           />
         </LineChart>
@@ -145,19 +145,11 @@ function TotalRequestChart({ view, apiData }) {
   );
 }
 
-function BreakdownTable({ view, apiData }) {
+function BreakdownTable({ view, apiData, docTypes }) {
   const rows =
     view === "daily"
       ? apiData?.request_volume?.daily || []
-      : apiData?.request_volume?.monthly || [];
-
-  const docTypes = [
-    "Transcript of Record",
-    "Honorable Dismissal",
-    "Evaluation",
-    "CAR",
-    "Officially Enrolled",
-  ];
+      : apiData?.request_volume?.weekly || [];
 
   const totals = docTypes.map((type) =>
     rows.reduce((sum, r) => sum + (r.breakdown?.[type] || 0), 0)
@@ -175,7 +167,7 @@ function BreakdownTable({ view, apiData }) {
         <table className="analytics-table">
           <thead>
             <tr>
-              <th>{view === "daily" ? "Day" : "Month"}</th>
+              <th>{view === "daily" ? "Day" : "Week"}</th>
 
               {docTypes.map((t) => (
                 <th key={t}>{t}</th>
@@ -221,6 +213,8 @@ const AdminAnalytics = () => {
   const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const { docTypes, colorMap } = useDynamicDocTypes(apiData);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -273,9 +267,9 @@ const AdminAnalytics = () => {
       <div className="analytics-main">
         <PageHeader view={view} setView={setView} />
 
-        <RequestVolumeChart view={view} apiData={apiData} />
+        <RequestVolumeChart view={view} apiData={apiData} docTypes={docTypes} colorMap={colorMap} />
         <TotalRequestChart view={view} apiData={apiData} />
-        <BreakdownTable view={view} apiData={apiData} />
+        <BreakdownTable view={view} apiData={apiData} docTypes={docTypes} />
       </div>
     </AdminLayout>
   );
