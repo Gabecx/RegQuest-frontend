@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Eye } from "lucide-react";
 import api from "../../api/axios";
-import RequestModal from "./RequestModal";
+import RequestModal from "../../components/staff/RequestModal";
 import "../../styles/RequestProcess.css"; 
 
 export default function RequestPreview({ requests = [], loading, error, refetchRequests }) {
