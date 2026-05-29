@@ -9,6 +9,7 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import '../styles/HomePage.css';
 
+
 const HomePage = ({ currentUser }) => {
 
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ const HomePage = ({ currentUser }) => {
                         icon: icon
                     };
                 });
-                setDocuments(formatted.slice(0, 6)); // Display up to 6 on home page
+                setDocuments(formatted.slice(0, 6));
             } catch (err) {
                 console.error("Failed to fetch documents:", err);
             } finally {

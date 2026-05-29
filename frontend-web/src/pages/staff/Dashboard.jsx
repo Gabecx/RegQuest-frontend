@@ -3,7 +3,7 @@ import {FileText} from "lucide-react";
 import StaffHeader from "../../components/staff/StaffHeader";
 import StaffTabs from "../../components/staff/StaffTabs";
 import CalendarPreview from "../../components/staff/CalendarPreview";
-import RequestPreview from "../../components/staff/RequestPreview";
+import RequestPreview from "./RequestPreview";
 import { useRequests } from "../../hooks/useRequests";
 import "../../styles/StaffDashboard.css";
 
