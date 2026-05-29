@@ -5,13 +5,12 @@ import { LogOut } from 'lucide-react';
 import logo from '../../assets/regquest-logo.png';
 
 const menuItems = [
-  { name: 'Dashboard', path: '/admin/dashboard' },
-  { name: 'Analytics & Graphs', path: '/admin/analytics' },
-  { name: 'Accounts & Role Management', path: '/admin/roles' },
+  { name: 'Dashboard', path: '/staff/dashboard' },
+  { name: 'Process Request', path: '/staff/process-requests' },
+  { name: 'Processing Calendar', path: '/staff/processing-calendar' },
 ];
 
-
-const AdminLayout = ({ children, banner }) => {
+const StaffLayout = ({ children, banner }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
@@ -23,10 +22,10 @@ const AdminLayout = ({ children, banner }) => {
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <header className="bg-white border-b border-gray-100 flex items-center justify-between px-8 py-3">
         <div className="flex items-center space-x-3">
-          <Link to="/admin/dashboard" className="flex items-center space-x-2">
+          <Link to="/staff/dashboard" className="flex items-center space-x-2">
             <img src={logo} alt="RegQuest Logo" className="h-9 w-auto" />
             <div className="flex flex-col leading-tight">
-              <span className="font-extrabold text-blue-950 text-[17px] tracking-tight">RegQuest Admin</span>
+              <span className="font-extrabold text-blue-950 text-[17px] tracking-tight">RegQuest Staff</span>
               <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Registrar Portal</span>
             </div>
           </Link>
@@ -35,10 +34,10 @@ const AdminLayout = ({ children, banner }) => {
         <div className="flex items-center space-x-6">
           <div className="text-right leading-tight">
             <p className="text-sm font-extrabold text-gray-800">
-              {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Admin User'}
+              {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : 'Staff User'}
             </p>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
-              {user?.role === 'admin' || !user?.role ? 'Registrar Admin' : user?.role}
+              {user?.role === 'staff' || !user?.role ? 'Registrar Staff' : user?.role}
             </p>
           </div>
 
@@ -82,4 +81,4 @@ const AdminLayout = ({ children, banner }) => {
   );
 };
 
-export default AdminLayout;
+export default StaffLayout;
