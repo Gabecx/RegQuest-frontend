@@ -60,6 +60,24 @@ export default function Calendar() {
     const formattedToday = new Date().toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     const formattedMonth = currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
+    if (loading) return (
+        <StaffLayout>
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        </StaffLayout>
+    );
+
+    if (error) return (
+        <StaffLayout>
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <div className="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-200 shadow-sm">
+                    <p className="font-semibold">{error}</p>
+                </div>
+            </div>
+        </StaffLayout>
+    );
+
     return (
         <StaffLayout>
             <div className="bg-[#eff6ff] border border-blue-200 rounded-xl p-6 font-sans mx-auto max-w-7xl mt-2 mb-8 shadow-sm">
@@ -117,7 +135,11 @@ export default function Calendar() {
                                                                 {percentage}%
                                                             </div>
                                                             <div className="bg-green-100 text-green-800 text-[9px] font-medium p-1.5 rounded truncate">
-                                                                Release documents from: {new Date(batchRequests[0].created_at || new Date()).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
+                                                                Release documents from: {
+                                                                    batchRequests[0]?.created_at && !isNaN(new Date(batchRequests[0].created_at).getTime())
+                                                                        ? new Date(batchRequests[0].created_at).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})
+                                                                        : "N/A"
+                                                                }
                                                             </div>
                                                             <div className="bg-blue-100 text-blue-800 text-[10px] font-medium p-1.5 rounded flex justify-between">
                                                                 <span>Process document:</span> <strong>{total}</strong>

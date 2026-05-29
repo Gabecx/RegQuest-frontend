@@ -163,8 +163,8 @@ const AdminRoles = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const nameParts = selectedStudent.name.split(' ');
-      const firstName = nameParts[0];
+      const nameParts = (selectedStudent.name || '').trim().split(' ');
+      const firstName = nameParts[0] || '';
       const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
       await api.post(`/accounts/verifications/${selectedStudent.id}/update_profile/`, {
         first_name: firstName,
